@@ -13,4 +13,4 @@ sites:
     production_branch: main
     output_dir: .infra/sites/shifted-knowledge/dist
     schema: 1            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
-    domain: shifted-knowledge.pages.dev   # Cloudflare default; replace with a custom domain when attached
+    domain: shiftedknowledge.com          # custom domain (apex + www) attached 2026-07-23; pages.dev still serves as origin
