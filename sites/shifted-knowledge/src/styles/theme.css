@@ -1,0 +1,73 @@
+/* Shifted Knowledge — brand theme (dark only).
+   Derived from the ShiftedKnowledge v1.0 Obsidian theme by Jochen Spalink.
+   This is a single theme: :root and both data-theme states resolve to the
+   same SK dark tokens, so nothing can move the site off its native dark ground. */
+
+:root {
+  /* SK brand palette — named roles */
+  --sk-ink:       #0E1218; /* page ground */
+  --sk-surface:   #171C24; /* cards, code, secondary panels */
+  --sk-elevated:  #1F2630; /* raised, active, hover */
+  --sk-hairline:  #2C3541; /* borders, dividers */
+  --sk-muted:     #8B97A6; /* secondary text, metadata */
+  --sk-soft:      #B4BDC8; /* running text */
+  --sk-stone:     #EDEEE6; /* typographic emphasis */
+  --sk-cyan:      #58C4D6; /* sole accent: links, H1–H4, controls, focus */
+  --sk-cyan-deep: #2E7E8C; /* hover, pressed, underline, rules */
+  --sk-sage:      #6FB98A; /* success */
+  --sk-amber:     #E3A24C; /* warning */
+  --sk-red:       #CE4B4B; /* danger */
+
+  --brand: var(--sk-cyan);
+}
+
+/* One theme, applied regardless of the data-theme attribute. */
+:root,
+[data-theme="light"],
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background          : var(--sk-ink);
+  --foreground          : var(--sk-soft);
+  --card                : var(--sk-surface);
+  --card-foreground     : var(--sk-soft);
+  --muted               : var(--sk-elevated);
+  --muted-foreground    : var(--sk-muted);
+  --border              : var(--sk-hairline);
+  --accent              : var(--sk-elevated);
+  --accent-foreground   : var(--sk-stone);
+  --ring                : var(--sk-cyan);
+  --primary             : var(--sk-cyan);
+  --primary-foreground  : var(--sk-ink);
+  --selection           : color-mix(in srgb, var(--sk-cyan) 22%, transparent);
+}
+
+@theme inline {
+
+  --color-background          : var(--background);
+  --color-foreground          : var(--foreground);
+  --color-card                : var(--card);
+  --color-card-foreground     : var(--card-foreground);
+  --color-muted               : var(--muted);
+  --color-muted-foreground    : var(--muted-foreground);
+  --color-border              : var(--border);
+  --color-accent              : var(--accent);
+  --color-accent-foreground   : var(--accent-foreground);
+  --color-ring                : var(--ring);
+  --color-primary             : var(--primary);
+  --color-primary-foreground  : var(--primary-foreground);
+  --color-selection           : var(--selection);
+
+  /* Semantic state colours (available as text-sage / text-amber / text-danger) */
+  --color-sage                : var(--sk-sage);
+  --color-amber               : var(--sk-amber);
+  --color-danger              : var(--sk-red);
+
+  /* Fonts: IBM Plex Mono for body/UI/code, Space Mono for headings/display.
+     (--font-lipi-sans = IBM Plex Mono, --font-lipi-serif = Space Mono) */
+  --font-content              : var(--font-lipi-serif); /* headings & display */
+  --font-body                 : var(--font-lipi-sans);  /* running text */
+  --font-ui                   : var(--font-lipi-sans);  /* nav, metadata */
+  --font-code                 : var(--font-lipi-sans);  /* code */
+  --font-annotation           : var(--font-lipi-serif); /* the one flourish */
+}

@@ -1,0 +1,66 @@
+---
+import { Font } from 'astro:assets';
+import { ClientRouter } from "astro:transitions";
+import "@/styles/global.css";
+
+interface Props {
+  lang?: string;
+  schema?: Record<string, unknown>;
+}
+
+const { lang = "en", schema } = Astro.props;
+---
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content={Astro.generator} />
+  
+  <!-- Shifted Knowledge is dark-only; theme-color is the Ink ground. -->
+  <meta name="theme-color" content="#0E1218" />
+
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
+
+	  <!-- SEO injected per layout -->
+  <slot name="seo" />
+  {
+    schema && (
+      <script 
+        is:inline
+        type="application/ld+json"
+        set:html={JSON.stringify(schema)}
+      />
+    )
+  }
+  <!-- Additional per-page head tags -->
+  <slot name="head" />
+
+	  <!-- Dark-only: pin the theme so a light-OS visitor still gets the SK ground. -->
+  <script is:inline>
+    (() => {
+      try {
+        document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("data-pf-theme", "dark");
+        document.documentElement.style.colorScheme = "dark";
+        window.__theme = { value: "dark" };
+      } catch (_) {}
+    })();
+  </script>
+  
+  <link
+    href="/pagefind/pagefind-component-ui.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/src/styles/pagefind.css" />
+  
+  <script
+    src="/pagefind/pagefind-component-ui.js"
+    type="module"
+  ></script>
+
+  <Font cssVariable="--font-lipi-sans" preload />
+  <Font cssVariable="--font-lipi-serif" preload />
+
+  <ClientRouter />
+</head>

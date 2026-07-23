@@ -1,0 +1,16 @@
+# Deployment manifest — the desired Cloudflare state for every site, in git.
+#
+# This is the readable source of truth. Cloudflare's dashboard is where a build
+# actually runs, and its per-project settings must match what is recorded here.
+# Nothing reads this file automatically today; it exists so the configuration is
+# not trapped only in the dashboard. When you change a project's settings, update
+# this file in the same commit.
+
+sites:
+  shifted-knowledge:
+    content_repo: shiftedknowledge/shifted-knowledge-content
+    cloudflare_project: shifted-knowledge
+    production_branch: main
+    output_dir: .infra/sites/shifted-knowledge/dist
+    schema: 1            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
+    domain: TBC          # set to the real domain once decided (currently a *.pages.dev placeholder)
