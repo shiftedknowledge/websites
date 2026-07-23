@@ -85,22 +85,25 @@ git init .infra \
 ```
 
 with output directory `.infra/sites/<SITE>/dist` and env vars `INFRA_REPO`,
-`INFRA_REF` (a full commit **SHA**, never a branch), `SITE`, and `NODE_VERSION=22`.
+`INFRA_REF`, `SITE`, and `NODE_VERSION=22`. `INFRA_REF` accepts either a branch
+name or a full commit SHA (the build does `git fetch --depth 1 origin "$INFRA_REF"`).
 Full connect instructions: [`CLOUDFLARE_SETUP.md`](CLOUDFLARE_SETUP.md).
 
 ## Releasing an infrastructure change
 
-Bumping this repo does not rebuild anything on its own. An infra release is
-deliberate and per-site:
+**Current default: `INFRA_REF` tracks `main`.** During active development every
+build clones this repo's latest `main`, so shipping an infra/app change is:
 
-1. Push the change here; note the new commit SHA.
-2. For one site, set its Cloudflare `INFRA_REF` to the new SHA.
-3. Trigger a deployment (preview first if risky, then production) and verify.
-4. Repeat for the next site when satisfied.
-5. **Rollback:** restore the previous SHA and redeploy. The old commit is always
-   available, so rollback is immediate.
+1. Test locally (`scripts/build-site.sh <site> <content-repo>`), then push to `main`.
+2. Trigger a rebuild of the affected site. Cloudflare watches the *content* repo,
+   not this one, so an infra-only change needs a nudge: push a trivial commit to
+   the content repo (auto-deploys), or use the site's Cloudflare "Retry deployment".
+3. A failed build changes nothing live; the last good deploy stays up.
 
-Sites move to new infrastructure one at a time, on purpose, never all at once.
+**Freezing a site to a specific version (optional).** For a production site you
+want reproducible, set that site's `INFRA_REF` to a full commit **SHA** instead of
+`main`. Then infra changes reach it only when you bump the SHA, and rollback is
+restoring the previous SHA and redeploying. Do this per site, one at a time.
 
 ## Adding a new site
 

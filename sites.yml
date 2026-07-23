@@ -14,3 +14,4 @@ sites:
     output_dir: .infra/sites/shifted-knowledge/dist
     schema: 1            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
     domain: shiftedknowledge.com          # custom domain (apex + www) attached 2026-07-23; pages.dev still serves as origin
+    infra_ref: main      # Cloudflare INFRA_REF tracks main (active dev); pin a SHA to freeze
