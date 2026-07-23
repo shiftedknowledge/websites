@@ -13,4 +13,4 @@ sites:
     production_branch: main
     output_dir: .infra/sites/shifted-knowledge/dist
     schema: 1            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
-    domain: TBC          # set to the real domain once decided (currently a *.pages.dev placeholder)
+    domain: shifted-knowledge.pages.dev   # Cloudflare default; replace with a custom domain when attached

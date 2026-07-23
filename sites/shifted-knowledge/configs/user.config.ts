@@ -10,9 +10,10 @@ const userConfig: UserConfig = {
   description:
     "Field notes and essays from building Shifted Knowledge — an ongoing, in-the-open record of the work.",
 
-  // TODO: set to the final domain once Cloudflare Pages is connected.
-  // Must match the deployed origin (drives canonical URLs, RSS, sitemap, OG images).
-  url: "https://shiftedknowledge-site.pages.dev",
+  // The deployed origin. Drives canonical URLs, RSS, sitemap, and OG images, so
+  // it must match the address people visit. Update to the custom domain when one
+  // is attached (then push and bump this site's INFRA_REF in Cloudflare).
+  url: "https://shifted-knowledge.pages.dev",
   author: "Jochen Spalink",
 
   logo: "/shifted-knowledge-logo.png",
