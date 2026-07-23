@@ -18,7 +18,7 @@ const userConfig: UserConfig = {
   logo: "/shifted-knowledge-logo.png",
 
   navigation: [
-    { title: "Writing", url: "/posts" },
+    { title: "Posts", url: "/posts" },
     { title: "Archive", url: "/archive" },
     { title: "About", url: "/about" },
   ],

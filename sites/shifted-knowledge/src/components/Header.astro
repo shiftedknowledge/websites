@@ -46,6 +46,18 @@ function isActive(url: string) {
             </a>
           ))
         }
+        <a
+          href="/rss.xml"
+          class="nav-link link-hover flex items-center"
+          aria-label="RSS feed"
+          title="RSS feed"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <circle cx="6.18" cy="17.82" r="2.18" />
+            <path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83C19.56 11.4 12.6 4.44 4 4.44z" />
+            <path d="M4 10.1v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z" />
+          </svg>
+        </a>
       </nav>
 
       <!-- Actions -->
@@ -92,7 +104,7 @@ function isActive(url: string) {
         siteConfig.navigation.map((item) => (
           <a
             href={item.url}
-            class="flex items-center justify-between px-4 py-3.5 border-b border-border 
+            class="flex items-center justify-between px-4 py-3.5 border-b border-border
               font-ui text-base text-muted-foreground link-hover aria-[current=page]:text-primary
               last:border-b-0"
             aria-current={isActive(item.url) ? "page" : undefined}
@@ -101,6 +113,19 @@ function isActive(url: string) {
           </a>
         ))
       }
+      <a
+        href="/rss.xml"
+        class="flex items-center gap-2 px-4 py-3.5 border-b border-border
+          font-ui text-base text-muted-foreground link-hover last:border-b-0"
+        aria-label="RSS feed"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="6.18" cy="17.82" r="2.18" />
+          <path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83C19.56 11.4 12.6 4.44 4 4.44z" />
+          <path d="M4 10.1v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z" />
+        </svg>
+        <span>RSS</span>
+      </a>
     </div>
   </div>
 </header>
