@@ -1,0 +1,61 @@
+/* Moment Hill — brand theme (light only).
+   Tyne Bridge identity, locked 2026-06-07. Five working tones + one spot (Burnt
+   Orange), which is graphics-only and therefore NOT exposed as a UI/type token. */
+
+:root {
+  /* Brand palette — named roles */
+  --mh-charcoal: #3f3f3f; /* text / anchor */
+  --mh-grey:     #6f7c77; /* default surface, secondary text */
+  --mh-tyne:     #425e4f; /* heritage accent — links, headings, buttons */
+  --mh-sage:     #9baca4; /* light separation, hairlines */
+  --mh-stone:    #edeee6; /* light ground */
+  --mh-orange:   #b85c38; /* spot — graphics only, never UI/type */
+
+  --brand: var(--mh-tyne);
+
+  color-scheme: light;
+
+  --background:         var(--mh-stone);
+  --foreground:         var(--mh-charcoal);
+  --card:               #ffffff;
+  --card-foreground:    var(--mh-charcoal);
+  --muted:              #e3e5da; /* a shade under Stone for panels/heads */
+  --muted-foreground:   var(--mh-grey);
+  --border:             var(--mh-sage);
+  --accent:             var(--mh-tyne);
+  --accent-foreground:  var(--mh-stone);
+  --ring:               var(--mh-tyne);
+  --primary:            var(--mh-tyne);
+  --primary-foreground: var(--mh-stone);
+  --selection:          color-mix(in srgb, var(--mh-tyne) 18%, transparent);
+}
+
+@theme inline {
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-border:             var(--border);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-ring:               var(--ring);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-selection:          var(--selection);
+
+  /* Direct brand tones, if a component needs one by name. */
+  --color-charcoal: var(--mh-charcoal);
+  --color-grey:     var(--mh-grey);
+  --color-tyne:     var(--mh-tyne);
+  --color-sage:     var(--mh-sage);
+  --color-stone:    var(--mh-stone);
+
+  /* Fonts: Serif = headings/titles/wordmark, Sans = body/UI (brand guide). */
+  --font-content: "Libertinus Serif", Georgia, "Times New Roman", serif;
+  --font-display: "Libertinus Serif Display", "Libertinus Serif", Georgia, serif;
+  --font-body:    "Libertinus Sans", system-ui, -apple-system, sans-serif;
+  --font-ui:      "Libertinus Sans", system-ui, -apple-system, sans-serif;
+  --font-code:    ui-monospace, SFMono-Regular, "SF Mono", monospace;
+}

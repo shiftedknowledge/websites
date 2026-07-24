@@ -1,0 +1,16 @@
+---
+import siteConfig from "@/site.config";
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-20 border-t border-border">
+  <div
+    class="wrap flex flex-col gap-3 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
+  >
+    <p>© {year} {siteConfig.title}</p>
+    <nav class="flex items-center gap-5 font-ui">
+      <a href="/privacy" class="link-hover">Privacy Policy</a>
+      <a href="/terms" class="link-hover">Terms &amp; Conditions</a>
+    </nav>
+  </div>
+</footer>

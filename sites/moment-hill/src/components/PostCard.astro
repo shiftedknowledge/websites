@@ -1,0 +1,25 @@
+---
+import type { Post } from "@/utils/content";
+import { entrySlug } from "@/utils/content";
+
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const href = `/posts/${entrySlug(post.id)}`;
+const date = post.data.published.toLocaleDateString("en-GB", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<article class="card-item">
+  <a href={href} class="group block no-underline">
+    <p class="font-ui text-xs uppercase tracking-wide text-muted-foreground">{date}</p>
+    <h3 class="mt-1 font-content text-xl text-primary group-hover:underline">
+      {post.data.title}
+    </h3>
+    <p class="mt-2 text-muted-foreground">{post.data.description}</p>
+  </a>
+</article>

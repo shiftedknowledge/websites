@@ -1,0 +1,108 @@
+@import "tailwindcss";
+@import "./fonts.css";
+@import "./theme.css";
+@import "./typography.css";
+
+html {
+  font-size: clamp(16px, 1rem + 0.1vw, 18px);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  a,
+  button {
+    @apply outline-primary outline-offset-2 focus-visible:outline-2 focus-visible:outline-dashed;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p,
+  li,
+  blockquote {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--selection);
+  }
+  :target {
+    scroll-margin-block: 5rem;
+  }
+}
+
+/* ── Layout containers ─────────────────────────────────────────────── */
+@utility wrap {
+  @apply mx-auto w-full max-w-5xl px-5;
+}
+@utility wrap-prose {
+  @apply mx-auto w-full max-w-2xl px-5;
+}
+@utility link-hover {
+  @apply transition-colors hover:text-primary;
+}
+
+@layer components {
+  /* ── Navigation ─────────────────────────────────────────────────── */
+  .nav-link {
+    @apply font-ui text-muted-foreground no-underline transition-colors hover:text-primary;
+  }
+  .nav-link[aria-current="page"] {
+    @apply text-primary underline decoration-1 underline-offset-8;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded bg-primary px-5 py-2.5 font-ui text-sm font-semibold text-primary-foreground no-underline transition-colors;
+  }
+  .btn-primary:hover {
+    background: var(--mh-charcoal);
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded border border-border px-5 py-2.5 font-ui text-sm font-semibold text-foreground no-underline transition-colors hover:border-primary hover:text-primary;
+  }
+
+  /* ── Cards ──────────────────────────────────────────────────────── */
+  .card-item {
+    @apply rounded-sm border border-border bg-card p-6 transition-shadow;
+  }
+  .card-item:hover {
+    box-shadow: 0 2px 14px color-mix(in srgb, var(--mh-charcoal) 8%, transparent);
+  }
+
+  /* ── Category tags + filter buttons ─────────────────────────────── */
+  .cat-tag {
+    @apply rounded-full border border-border px-2.5 py-0.5 font-ui text-xs uppercase tracking-wide text-muted-foreground;
+  }
+  .cat-btn {
+    @apply rounded-full border border-border px-3.5 py-1 font-ui text-sm text-muted-foreground transition-colors hover:text-primary;
+  }
+  .cat-btn.is-active {
+    @apply border-primary bg-primary text-primary-foreground;
+  }
+
+  /* ── Circular icon button (LinkedIn, mobile toggle) ─────────────── */
+  .icon-btn {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-primary hover:text-primary;
+  }
+
+  /* ── Bits ───────────────────────────────────────────────────────── */
+  .divider {
+    @apply my-8 h-px bg-border;
+  }
+  .heading-anchor {
+    @apply ms-2 text-muted-foreground no-underline opacity-0 transition-opacity;
+  }
+  :is(h2, h3, h4):hover .heading-anchor {
+    @apply opacity-100;
+  }
+}

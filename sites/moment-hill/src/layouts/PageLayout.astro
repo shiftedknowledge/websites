@@ -1,0 +1,27 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SEO from "@/components/SEO.astro";
+import type { Page } from "@/utils/content";
+
+interface Props {
+  entry: Page;
+}
+const { entry } = Astro.props;
+---
+
+<BaseLayout>
+  <SEO slot="seo" title={entry.data.title} description={entry.data.description} />
+  <article class="wrap py-14 md:py-20">
+    <div class="max-w-2xl">
+      <h1 class="font-display text-4xl text-primary md:text-5xl">{entry.data.title}</h1>
+      {
+        entry.data.description && (
+          <p class="mt-4 text-lg text-muted-foreground">{entry.data.description}</p>
+        )
+      }
+      <div class="app-prose mt-8">
+        <slot />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

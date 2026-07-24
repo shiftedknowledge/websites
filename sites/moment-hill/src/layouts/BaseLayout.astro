@@ -1,0 +1,26 @@
+---
+import Head from "@/components/Head.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+
+interface Props {
+  lang?: string;
+  schema?: Record<string, unknown>;
+}
+const { lang = "en", schema } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+  <Head schema={schema}>
+    <slot name="seo" slot="seo" />
+    <slot name="head" slot="head" />
+  </Head>
+  <body class="flex min-h-screen flex-col bg-background font-body text-foreground antialiased">
+    <Header />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

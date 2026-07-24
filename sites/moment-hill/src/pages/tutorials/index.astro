@@ -1,0 +1,67 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SEO from "@/components/SEO.astro";
+import TutorialCard from "@/components/TutorialCard.astro";
+import { getAllTutorials, presentLevels } from "@/utils/content";
+
+const tutorials = await getAllTutorials();
+const levels = presentLevels(tutorials);
+---
+
+<BaseLayout>
+  <SEO
+    slot="seo"
+    title="Tutorials"
+    description="Practical, jargon-free tutorials to upskill, from first steps to advanced."
+  />
+  <section class="wrap py-14 md:py-20">
+    <h1 class="font-display text-4xl text-primary md:text-5xl">Tutorials</h1>
+    <p class="mt-4 max-w-prose text-lg text-muted-foreground">
+      Practical, jargon-free upskilling, from first steps to advanced.
+    </p>
+
+    {
+      levels.length > 0 && (
+        <div
+          class="mt-8 flex flex-wrap gap-2"
+          id="level-filter"
+          role="group"
+          aria-label="Filter tutorials by level"
+        >
+          <button type="button" class="cat-btn is-active" data-level="all">All</button>
+          {levels.map((l) => (
+            <button type="button" class="cat-btn" data-level={l}>
+              {l}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="mt-10 space-y-6" id="tutorial-list">
+      {
+        tutorials.length === 0 ? (
+          <p class="text-muted-foreground">Nothing published yet.</p>
+        ) : (
+          tutorials.map((tutorial) => <TutorialCard tutorial={tutorial} />)
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const filter = document.getElementById("level-filter");
+  const list = document.getElementById("tutorial-list");
+  filter?.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest(".cat-btn") as HTMLElement | null;
+    if (!btn) return;
+    const lvl = btn.dataset.level ?? "all";
+    filter
+      .querySelectorAll(".cat-btn")
+      .forEach((b) => b.classList.toggle("is-active", b === btn));
+    list?.querySelectorAll<HTMLElement>("[data-level]").forEach((card) => {
+      card.hidden = !(lvl === "all" || card.dataset.level === lvl);
+    });
+  });
+</script>

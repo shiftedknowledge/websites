@@ -1,0 +1,29 @@
+---
+import type { Framework } from "@/utils/content";
+import { entrySlug } from "@/utils/content";
+
+interface Props {
+  framework: Framework;
+}
+const { framework } = Astro.props;
+const href = `/frameworks/${entrySlug(framework.id)}`;
+const cats = framework.data.categories ?? [];
+---
+
+<article class="card-item" data-categories={cats.map((c) => c.toLowerCase()).join(" ")}>
+  <a href={href} class="group block no-underline">
+    <h3 class="font-content text-xl text-primary group-hover:underline">
+      {framework.data.title}
+    </h3>
+    <p class="mt-2 text-muted-foreground">{framework.data.description}</p>
+    {
+      cats.length > 0 && (
+        <ul class="mt-3 flex flex-wrap gap-2">
+          {cats.map((c) => (
+            <li class="cat-tag">{c}</li>
+          ))}
+        </ul>
+      )
+    }
+  </a>
+</article>

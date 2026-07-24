@@ -1,0 +1,98 @@
+@plugin "@tailwindcss/typography";
+
+@layer base {
+  /* Editorial prose for markdown bodies. Serif headings, Sans body. */
+  .app-prose {
+    @apply prose max-w-none text-base text-foreground;
+  }
+  .app-prose :where(p, ul, ol, table, blockquote) {
+    @apply leading-relaxed text-foreground;
+  }
+  .app-prose :where(p) {
+    @apply mt-6;
+  }
+
+  /* Headings — Libertinus Serif. Brand hierarchy: H1/H2 Tyne Green,
+     H3 Charcoal, H4+ Moment Grey. */
+  .app-prose :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-content);
+    @apply scroll-mt-24 font-semibold tracking-tight;
+    margin-top: 1.4em;
+  }
+  .app-prose :where(h1, h2) {
+    @apply text-primary;
+  }
+  .app-prose :where(h3) {
+    color: var(--mh-charcoal);
+  }
+  .app-prose :where(h4, h5, h6) {
+    color: var(--mh-grey);
+  }
+  .app-prose :where(h1) {
+    @apply text-3xl;
+  }
+  .app-prose :where(h2) {
+    @apply text-2xl;
+  }
+  .app-prose :where(h3) {
+    @apply text-xl;
+  }
+  .app-prose :where(h4) {
+    @apply text-lg;
+  }
+
+  .app-prose :where(strong) {
+    @apply font-bold text-foreground;
+  }
+  .app-prose :where(a) {
+    @apply text-primary underline decoration-1 underline-offset-4;
+  }
+  .app-prose :where(a):hover {
+    color: var(--mh-charcoal);
+  }
+
+  .app-prose :where(ul, ol) {
+    @apply ps-5;
+  }
+  .app-prose :where(li) {
+    @apply mt-2;
+  }
+  .app-prose :where(li)::marker {
+    @apply text-muted-foreground;
+  }
+
+  .app-prose :where(hr) {
+    @apply my-12 h-px border-0 bg-border;
+  }
+  .app-prose :where(img) {
+    @apply my-6 rounded-sm;
+  }
+  .app-prose :where(figcaption) {
+    @apply mt-3 text-center text-sm text-muted-foreground;
+  }
+
+  .app-prose :where(blockquote) {
+    @apply my-6 border-s-2 ps-5 text-muted-foreground not-italic;
+    border-inline-start-color: var(--mh-tyne);
+  }
+  .app-prose :where(blockquote p) {
+    @apply text-muted-foreground;
+  }
+
+  .app-prose :where(code):not(pre code) {
+    @apply rounded border border-border bg-card px-1 py-0.5 font-code text-sm before:content-none after:content-none;
+  }
+  .app-prose :where(pre) {
+    @apply overflow-x-auto rounded-sm border border-border bg-card p-4 text-sm;
+  }
+
+  .app-prose :where(table) {
+    @apply w-full border-collapse border border-border text-sm;
+  }
+  .app-prose :where(th, td) {
+    @apply border border-border px-3 py-2;
+  }
+  .app-prose :where(th) {
+    @apply bg-muted text-left font-semibold text-primary;
+  }
+}

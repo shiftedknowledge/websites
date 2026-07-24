@@ -1,0 +1,59 @@
+/* Libertinus — self-hosted (OFL). Serif = headings/titles/wordmark; Sans = body/UI.
+   Per the Moment Hill Brand Guide (locked 2026-06-07). Weights limited on purpose. */
+
+@font-face {
+  font-family: "Libertinus Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/LibertinusSerif-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libertinus Serif";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/LibertinusSerif-Italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libertinus Serif";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/LibertinusSerif-Semibold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libertinus Serif";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/LibertinusSerif-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libertinus Serif Display";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/LibertinusSerifDisplay-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libertinus Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/LibertinusSans-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libertinus Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/LibertinusSans-Italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Libertinus Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/LibertinusSans-Bold.woff2") format("woff2");
+}

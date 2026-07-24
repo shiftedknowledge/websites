@@ -1,0 +1,20 @@
+---
+import { render } from "astro:content";
+import FrameworkLayout from "@/layouts/FrameworkLayout.astro";
+import { getAllFrameworks, entrySlug } from "@/utils/content";
+
+export async function getStaticPaths() {
+  const frameworks = await getAllFrameworks();
+  return frameworks.map((framework) => ({
+    params: { slug: entrySlug(framework.id) },
+    props: { framework },
+  }));
+}
+
+const { framework } = Astro.props;
+const { Content } = await render(framework);
+---
+
+<FrameworkLayout framework={framework}>
+  <Content />
+</FrameworkLayout>

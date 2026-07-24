@@ -43,10 +43,10 @@ not here. Everything else under `sites/<site>/` is app code and belongs here.
 
 ```bash
 # 1. Clone the site's content repo somewhere (once):
-git clone git@github.com:shiftedknowledge/shifted-knowledge-content.git ../shifted-knowledge-content
+git clone git@github.com:shiftedknowledge/shifted-knowledge-content.git ../website-content/shifted-knowledge
 
 # 2. Link it into the app (creates the gitignored src/content symlink):
-scripts/dev-link.sh shifted-knowledge ../shifted-knowledge-content
+scripts/dev-link.sh shifted-knowledge ../website-content/shifted-knowledge
 
 # 3. Develop:
 cd sites/shifted-knowledge

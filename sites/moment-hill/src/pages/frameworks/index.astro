@@ -1,0 +1,68 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SEO from "@/components/SEO.astro";
+import FrameworkCard from "@/components/FrameworkCard.astro";
+import { getAllFrameworks, allCategories } from "@/utils/content";
+
+const frameworks = await getAllFrameworks();
+const categories = allCategories(frameworks);
+---
+
+<BaseLayout>
+  <SEO
+    slot="seo"
+    title="Frameworks"
+    description="Proven frameworks, applied with AI leverage, ready to use."
+  />
+  <section class="wrap py-14 md:py-20">
+    <h1 class="font-display text-4xl text-primary md:text-5xl">Frameworks</h1>
+    <p class="mt-4 max-w-prose text-lg text-muted-foreground">
+      Proven frameworks, applied with AI leverage. Filter by area.
+    </p>
+
+    {
+      categories.length > 0 && (
+        <div
+          class="mt-8 flex flex-wrap gap-2"
+          id="cat-filter"
+          role="group"
+          aria-label="Filter frameworks by category"
+        >
+          <button type="button" class="cat-btn is-active" data-cat="all">All</button>
+          {categories.map((c) => (
+            <button type="button" class="cat-btn" data-cat={c.toLowerCase()}>
+              {c}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="mt-10 space-y-6" id="framework-list">
+      {
+        frameworks.length === 0 ? (
+          <p class="text-muted-foreground">Nothing published yet.</p>
+        ) : (
+          frameworks.map((framework) => <FrameworkCard framework={framework} />)
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const filter = document.getElementById("cat-filter");
+  const list = document.getElementById("framework-list");
+  filter?.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest(".cat-btn") as HTMLElement | null;
+    if (!btn) return;
+    const cat = btn.dataset.cat ?? "all";
+    filter
+      .querySelectorAll(".cat-btn")
+      .forEach((b) => b.classList.toggle("is-active", b === btn));
+    list?.querySelectorAll<HTMLElement>("[data-categories]").forEach((card) => {
+      const cats = (card.dataset.categories || "").split(" ").filter(Boolean);
+      card.hidden = !(cat === "all" || cats.includes(cat));
+    });
+  });
+</script>

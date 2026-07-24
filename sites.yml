@@ -15,3 +15,13 @@ sites:
     schema: 1            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
     domain: shiftedknowledge.com          # custom domain (apex + www) attached 2026-07-23; pages.dev still serves as origin
     infra_ref: main      # Cloudflare INFRA_REF tracks main (active dev); pin a SHA to freeze
+
+  moment-hill:
+    content_repo: shiftedknowledge/moment-hill-content
+    cloudflare_project: moment-hill
+    production_branch: main
+    output_dir: .infra/sites/moment-hill/dist
+    schema: 1            # must equal sites/moment-hill/CONTENT_SCHEMA
+    node_version: 22     # Cloudflare NODE_VERSION (Option A: npm, Node 22)
+    domain: momenthill.com                # custom domain (apex + www) — NOT yet attached; DNS/M365 migration pending
+    infra_ref: main      # Cloudflare INFRA_REF tracks main (active dev); pin a SHA to freeze

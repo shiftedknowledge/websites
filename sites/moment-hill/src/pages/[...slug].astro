@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from "astro:content";
+import PageLayout from "@/layouts/PageLayout.astro";
+import { entrySlug } from "@/utils/content";
+
+// Renders standalone prose pages (consulting, about, privacy, terms).
+// home.md is excluded — index.astro consumes its copy for the hero.
+export async function getStaticPaths() {
+  const isDev = import.meta.env.DEV;
+  const pages = await getCollection(
+    "pages",
+    (p) => p.id !== "home" && (isDev || !p.data.draft),
+  );
+  return pages.map((page) => ({
+    params: { slug: entrySlug(page.id) },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+---
+
+<PageLayout entry={page}>
+  <Content />
+</PageLayout>

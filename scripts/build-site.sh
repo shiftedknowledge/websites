@@ -30,7 +30,7 @@ CONTENT_ROOT="$(cd "$CONTENT_ROOT" && pwd)"
 # 1. Allowlist the site. Never trust an arbitrary name to index into the tree.
 case "$SITE" in
   shifted-knowledge) ;;
-  # moment-hill) ;;   # uncomment when the app exists
+  moment-hill) ;;
   *) echo "build-site: unknown site '$SITE'" >&2; exit 1 ;;
 esac
 
@@ -50,24 +50,24 @@ if [ "$ACTUAL" != "$EXPECTED" ]; then
   exit 1
 fi
 
-# 3. Assemble content. Only src/content is ever written; wipe it first so no
-#    stale entry survives, then copy the two collections in.
+# 3. Assemble content. Only src/content is ever written. Copy every collection
+#    directory the content repo provides (posts, pages, and any site-specific
+#    ones such as moment-hill's frameworks), so the platform stays site-agnostic.
 DEST="$APP/src/content"
 # If a developer ran dev-link.sh, src/content is a symlink into the content repo.
 # Remove the LINK (not its target) before wiping, so we never rm -rf through it
 # into the real content. Cloudflare's fresh checkout never has this link.
 [ -L "$DEST" ] && rm -f "$DEST"
-rm -rf "$DEST/posts" "$DEST/pages"
+rm -rf "$DEST"
 mkdir -p "$DEST"
 
-for collection in posts pages; do
-  if [ -d "$CONTENT_ROOT/content/$collection" ]; then
-    # -L resolves symlinks to real files so nothing escapes the content dir.
-    cp -RL "$CONTENT_ROOT/content/$collection" "$DEST/$collection"
-  else
-    mkdir -p "$DEST/$collection"
-  fi
+shopt -s nullglob
+for dir in "$CONTENT_ROOT"/content/*/; do
+  name="$(basename "$dir")"
+  # -L resolves symlinks to real files so nothing escapes the content dir.
+  cp -RL "$dir" "$DEST/$name"
 done
+shopt -u nullglob
 
 # 4. Build the app. `npm run build` (not bare astro build) so Pagefind runs.
 cd "$APP"
