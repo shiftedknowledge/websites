@@ -13,6 +13,27 @@ around making that impossible rather than unlikely.
 
 ---
 
+## Status
+
+**Phases 0 to 2 are done (2026-07-27). Nothing is live yet.** The zone exists at
+Cloudflare and answers correctly, but `momenthill.com` is still delegated to
+Hover and still served by Squarespace. Nothing has been deleted at Hover.
+
+- Zone `momenthill.com` created on the Free plan.
+- All six mail records imported by Cloudflare's scan and verified byte for byte
+  against `dig`. No manual transcription was involved.
+- `autodiscover`, `selector1._domainkey`, `selector2._domainkey` switched from
+  Proxied to **DNS only**. Cloudflare's import had proxied all three, which
+  would have broken Outlook autodiscovery and DKIM signing.
+- Squarespace records removed from the Cloudflare zone: four apex `A` records
+  and the `www` CNAME.
+- **Assigned nameservers: `alex.ns.cloudflare.com`, `donna.ns.cloudflare.com`.**
+- Phase 2 verification passed: all five mail queries answer identically from
+  `alex.ns.cloudflare.com` and `ns1.hover.com`.
+
+Remaining: attach the Pages custom domain, add DMARC, then the nameserver switch
+at Hover.
+
 ## The zone as it stands
 
 Enumerated by `dig` on 2026-07-27, not read off a screenshot. Nameservers are
