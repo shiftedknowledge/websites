@@ -18,10 +18,9 @@ sites:
 
   moment-hill:
     content_repo: shiftedknowledge/moment-hill-content
-    cloudflare_project: moment-hill-preview   # NOT "moment-hill"; serves moment-hill-preview.pages.dev
-    deploy: direct-upload                     # `wrangler pages deploy sites/moment-hill/dist --project-name moment-hill-preview`
-                                              # This project is NOT git-connected: pushing the content repo deploys nothing.
-                                              # Switch to git integration when the domain moves off Squarespace.
+    cloudflare_project: moment-hill           # serves moment-hill.pages.dev; git-connected 2026-07-27
+    deploy: git                               # a push to the content repo builds and deploys, as with shifted-knowledge
+    legacy_project: moment-hill-preview       # superseded direct-upload project; safe to delete once the domain is live
     production_branch: main
     output_dir: .infra/sites/moment-hill/dist
     schema: 1            # must equal sites/moment-hill/CONTENT_SCHEMA

@@ -38,14 +38,32 @@ Hover and still served by Squarespace. Nothing has been deleted at Hover.
   registry and there are none, so there is nothing to disable before the move.
   Same as shiftedknowledge.com.
 
-Remaining: create the git-connected Pages project, attach the custom domain,
-then the nameserver switch at Hover.
+- **Pages project `moment-hill` created and git-connected** to
+  `shiftedknowledge/moment-hill-content`, production branch `main`, with the
+  standard build command, output `.infra/sites/moment-hill/dist`, and
+  `INFRA_REPO` / `INFRA_REF=main` / `SITE=moment-hill` / `NODE_VERSION=22`.
+  First build succeeded; every route verified on `moment-hill.pages.dev`.
+  Pushes to the content repo now deploy themselves.
 
-**Blocked:** the Cloudflare Pages GitHub App can only see
-`shifted-knowledge-content`. Before a git-connected project can be created for
-Moment Hill, its repository access must be extended to
-`shiftedknowledge/moment-hill-content` (GitHub → Settings → Applications →
-Cloudflare Pages → Configure).
+**Only the nameserver switch is left.**
+
+### Ordering constraint found the hard way
+
+Cloudflare **refuses to attach a custom domain until the zone is active** — that
+is, until the nameservers actually point at Cloudflare. So the custom domain
+cannot be pre-staged; the order is necessarily:
+
+1. Switch nameservers at Hover.
+2. Wait for the zone to go active (minutes, occasionally hours).
+3. Attach `momenthill.com` and `www.momenthill.com` to the `moment-hill` project.
+
+**There is a gap in step 2 where the website does not resolve.** The Squarespace
+A records are gone from the Cloudflare zone, and Pages will not answer for a
+hostname that is not yet attached to a project. Mail is unaffected throughout:
+MX, SPF, DKIM, DMARC and autodiscover are all already in place and verified.
+
+Keep the gap short by attaching the custom domain as soon as the zone reports
+active. `moment-hill.pages.dev` stays available the whole time.
 
 ## The zone as it stands
 
