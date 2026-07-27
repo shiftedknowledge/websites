@@ -12,6 +12,20 @@ const tagline = home?.data.tagline ?? siteConfig.tagline;
 const intro = home?.data.intro ?? siteConfig.description;
 const offerings = home?.data.offerings ?? [];
 const foundation = home?.data.foundation;
+
+// `intro` is a folded YAML scalar (`>-`), so a blank line in home.md survives
+// as a single \n and each line is one paragraph. Astro interpolates it as plain
+// text, which is why markdown emphasis previously showed up as literal
+// asterisks. Handle the two things the copy actually uses — paragraph breaks
+// and **bold** — rather than pulling a markdown renderer in for one field.
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const introParagraphs = String(intro)
+  .split(/\n+/)
+  .map((p) => p.trim())
+  .filter(Boolean)
+  .map((p) => escapeHtml(p).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"));
 ---
 
 <BaseLayout>
@@ -23,7 +37,15 @@ const foundation = home?.data.foundation;
         <h1 class="font-display text-4xl leading-tight text-primary md:text-5xl">
           {tagline}
         </h1>
-        <p class="mt-6 max-w-prose text-lg text-foreground/90">{intro}</p>
+        {introParagraphs.map((html, i) => (
+          <p
+            class:list={[
+              "max-w-prose text-lg text-foreground/90",
+              i === 0 ? "mt-6" : "mt-4",
+            ]}
+            set:html={html}
+          />
+        ))}
       </div>
       <div>
         <Image
@@ -48,7 +70,7 @@ const foundation = home?.data.foundation;
               <p class="mt-3 text-muted-foreground">{o.blurb}</p>
               <a
                 href={o.ctaHref}
-                class="mt-auto inline-flex w-fit items-center gap-1.5 pt-6 font-ui text-sm font-semibold text-primary link-hover"
+                class="mt-auto inline-flex w-fit items-center gap-1.5 pt-6 font-ui text-base font-semibold text-primary link-hover"
               >
                 {o.ctaLabel} <span aria-hidden="true">→</span>
               </a>
