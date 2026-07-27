@@ -13,19 +13,27 @@ sites:
     production_branch: main
     output_dir: .infra/sites/shifted-knowledge/dist
     schema: 1            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
-    domain: shiftedknowledge.com          # custom domain (apex + www) attached 2026-07-23; pages.dev still serves as origin
-    infra_ref: main      # Cloudflare INFRA_REF tracks main (active dev); pin a SHA to freeze
+    domain: shiftedknowledge.com          # only www is ATTACHED to the project; the apex resolves
+                                          # through a proxied record in the zone, so it has no
+                                          # certificate or redirect settings of its own. Works; untidy.
+    mail: fastmail                        # see docs/dns.md
+    infra_ref: main      # production. NOTE: the *preview* env is still pinned to SHA
+                         # 74d8fb08d7c59b4297e50727d56429484c182ebd. Harmless while no
+                         # preview branches are in use; fix if that changes.
 
   moment-hill:
     content_repo: shiftedknowledge/moment-hill-content
     cloudflare_project: moment-hill           # serves moment-hill.pages.dev; git-connected 2026-07-27
     deploy: git                               # a push to the content repo builds and deploys, as with shifted-knowledge
-    legacy_project: moment-hill-preview       # superseded direct-upload project; safe to delete once the domain is live
+    legacy_project: moment-hill-preview       # superseded direct-upload project. The domain is live,
+                                              # nothing links to it: safe to delete.
     production_branch: main
     output_dir: .infra/sites/moment-hill/dist
     schema: 1            # must equal sites/moment-hill/CONTENT_SCHEMA
     node_version: 22     # Cloudflare NODE_VERSION (Option A: npm, Node 22)
-    domain: momenthill.com                # apex + www attached 2026-07-27; nameservers moved Hover -> Cloudflare
-                                          # (alex/donna.ns.cloudflare.com). Registration stays at Hover.
-                                          # M365 mail carried across intact; see docs/dns-moment-hill.md.
-    infra_ref: main      # Cloudflare INFRA_REF tracks main (active dev); pin a SHA to freeze
+    domain: momenthill.com                # apex + www both attached 2026-07-27. Nameservers moved
+                                          # Hover -> Cloudflare (alex/donna.ns.cloudflare.com);
+                                          # registration stays at Hover. See docs/dns.md.
+    mail: microsoft-365                   # load-bearing. Read docs/dns.md before any zone edit.
+    newsletter: buttondown                # see docs/newsletter.md
+    infra_ref: main      # production and preview both track main

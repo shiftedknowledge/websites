@@ -42,11 +42,29 @@ receive it, and get a yes in that turn. One line, not a negotiation. Sending
 mails real people and cannot be undone, so it earns a confirmation even though
 the capability is yours. Everything short of the send needs no permission.
 
+## Where it stands
+
+| | |
+|---|---|
+| Newsletter | `momenthill` — `news_07rd0vfcnh9tt99qkepdn6b78w` |
+| Test mode | **off** — every send is real |
+| Subscribers | 4 confirmed, of which 3 are test addresses (`test@`, `test3@`, `test4@spalink.me`) |
+| Sent | one pipeline test |
+
+Those test addresses will receive the next real issue. Removing them needs
+`Subscribers: Read & write` on the key, which it does not have. Say so; do not
+quietly widen the key.
+
 ## Key permissions
 
 `Emails: Read & write`, `Subscribers: Read`, `Sending: Enabled`,
 `Styling: Read & write`, `Settings: Read & write`, everything else `None`.
 Pinned to API version `2026-04-01`.
+
+The key is narrowed and widened by hand as needed. `push`, `send`, `list` and
+`subscribers` all work without `Settings`; only `design push` and reading
+`settings` need it. If a command 403s, name the missing permission and let
+Jochen decide — never treat "more permission" as the default answer.
 
 **`design push` needs `Settings: Read & write`, not `Styling`.** Tested
 2026-07-27: with Settings at Read, every `PATCH /v1/newsletters/{id}` returns
@@ -112,20 +130,27 @@ measured and senior.
 - `POST /emails/{id}/send-draft` requires a JSON body. With none it 422s with
   "field required: payload". The body **is** the payload, so `{}` means "send
   with defaults" — a nested `{"payload": {}}` is rejected as an extra input.
-- With test mode on, a send goes to the account address only and the email
-  **stays a draft**, so it does not consume it. Do not read "still a draft" as
-  "the send failed".
+- **Test mode is OFF** (`test_mode: false`, 2026-07-27). Every send reaches the
+  real list. There is no harmless "test" send any more. When it was on, a send
+  went to the account address only and left the email a draft; that behaviour no
+  longer applies, so do not reason from it. Check `settings` if it matters.
 - `X-API-Version: 2026-04-01` makes `draft` the default status. Older versions
   defaulted to `about_to_send`, i.e. straight to the whole list. The CLI pins it.
-- Test mode is on. Confirm what that does to a send before assuming a "test"
-  send is harmless.
 - Free tier caps at 100 subscribers. `css` is **not** editable on free
   (`400 css__not_allowed`); `header`, `footer` and `tint_color` are.
   `design push` reports blocked fields and carries on — that is expected, not a
   bug to fix.
 - The newsletter has no public web presence by design: `enabled_features` is
-  `["api"]` (archives and portal off) and both subscription redirects point at
-  momenthill.com. Do not re-enable archives, and never suggest "private mode" —
-  it blocks public subscriptions and would break the signup form.
-- Custom sending domain needs DNS on `momenthill.com`, which was still pending
-  its M365 migration as of July 2026. Check before promising it works.
+  `["api"]` (archives and portal off). Do not re-enable archives, and never
+  suggest "private mode" — it blocks public subscriptions and would break the
+  signup form.
+- The two subscription redirects are **different pages on purpose**:
+  `subscription_redirect_url` → `/subscribed` (after the form, "check your
+  inbox"), `subscription_confirmation_redirect_url` → `/confirmed` (after the
+  confirm link, "you're on the list"). Pointing both at one page tells a
+  confirmed subscriber to go and confirm, which reads as a failure.
+- Mail goes out on Buttondown's shared sending domain
+  (`sending_domain_status: none`). A custom sending domain is now possible —
+  `momenthill.com` is on Cloudflare — but SPF there is `-all`, a hard fail, so
+  adding Buttondown as a sender means editing that record deliberately rather
+  than discovering it through bounces.

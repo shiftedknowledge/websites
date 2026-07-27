@@ -7,6 +7,23 @@ It runs on **Buttondown**, free tier. One newsletter, one site. The design goal
 was that publishing an issue costs one command and one decision, and that the
 decision is always yours.
 
+## Where it stands
+
+| | |
+|---|---|
+| Newsletter | `momenthill` — `news_07rd0vfcnh9tt99qkepdn6b78w` |
+| From | `Jochen <jochen@momenthill.com>`, sent on Buttondown's domain |
+| Test mode | **off** — every send is real |
+| Subscribers | 4 confirmed, of which 3 are test addresses (`test@`, `test3@`, `test4@spalink.me`) |
+| Issues sent | one, a pipeline test |
+| Locale | `en-GB`, Europe/London, tint `#425e4f` |
+
+Those test addresses will receive the next real issue. Removing them needs
+`Subscribers: Read & write` on the key, or two minutes in the dashboard.
+
+Run `scripts/buttondown.mjs settings` rather than trusting this table if
+anything depends on it.
+
 ---
 
 ## The loop
@@ -228,9 +245,15 @@ Applied 2026-07-27:
 | Setting | Value | Effect |
 |---|---|---|
 | `enabled_features` | `["api"]` | Archives **and** the subscriber portal off |
-| `subscription_redirect_url` | `https://momenthill.com/` | Form submit returns them to the site |
-| `subscription_confirmation_redirect_url` | `https://momenthill.com/` | So does clicking confirm |
+| `subscription_redirect_url` | `https://momenthill.com/subscribed` | After the form: "check your inbox and confirm" |
+| `subscription_confirmation_redirect_url` | `https://momenthill.com/confirmed` | After the confirm link: "you're on the list" |
 | `footer.html` | no archive or "view in browser" link | Only outbound links are the site and unsubscribe |
+
+The two redirects are **two different pages on purpose**. Pointing both at one
+page tells someone who has just confirmed to go and check their inbox for an
+email they already acted on, which reads as a failure. `subscribed.astro` and
+`confirmed.astro` are both `noindex`; they are destinations, not pages anyone
+should find by search.
 
 `buttondown.com/momenthill` still resolves, but it is now a bare subscribe page
 with no archive content on it. Nothing your subscribers see ever links there.
@@ -250,17 +273,21 @@ until proven otherwise.
   it surprises you.
 - **`css` is not editable on free** (`css__not_allowed`). Header, footer and
   `tint_color` are. Custom email *templates* are $79/mo on top of that.
-- **Custom sending domain needs DNS on `momenthill.com`**, which was still
-  pending its M365 migration as of July 2026 (see `sites.yml`). Until then, mail
-  goes out on Buttondown's default sending domain.
+- **Mail goes out on Buttondown's default sending domain.**
+  `sending_domain_status` is `none`. The blocker used to be that
+  `momenthill.com` was not on Cloudflare; it is now, so this is available
+  whenever it is wanted. It is not free work: SPF on that domain is `-all`, a
+  hard fail, so adding Buttondown as a sender means editing that record
+  deliberately. See [`dns.md`](dns.md).
 - **The API rejects a body starting with `---`**, reading it as stray
   frontmatter. The CLI strips ours. If you ever hand-roll a call, strip it too.
 - **`send-draft` needs a JSON body.** With none it 422s "field required:
   payload". The body *is* the payload, so `{}` means send with defaults. A
   nested `{"payload": {}}` is rejected.
-- **Test mode sends to the account address and leaves the email a draft.**
-  Subscribers receive nothing and the draft is not consumed, so you can send it
-  again for real later. "Still a draft" does not mean the send failed.
+- **Test mode is OFF.** `test_mode: false` as of 2026-07-27. Every send goes to
+  the real list. When it was on, a send went to the account address only and
+  left the email a draft, so "still a draft" did not mean the send had failed;
+  that no longer applies. Check `settings` rather than assuming either way.
 - **`X-API-Version: 2026-04-01` is pinned** in the CLI. That version defaults new
   emails to `draft`. Older versions defaulted to `about_to_send`, which means
   the entire list. Do not unpin it.

@@ -1,11 +1,31 @@
 # AGENTS.md — websites (infrastructure)
 
 Engineer-facing source of truth for the website platform. If you are a coding
-agent or a developer working in this repo, read this first. The full rationale is
-in [`docs/design-spec.md`](docs/design-spec.md); this file is the operating manual.
+agent or a developer working in this repo, read this first. This file is the
+operating manual; [`docs/platform.md`](docs/platform.md) is the current state of
+everything, and [`docs/design-spec.md`](docs/design-spec.md) is the rationale.
 
 This repo is **public** and holds **no secrets**. Never commit credentials, tokens,
 or private content here.
+
+## Where to look
+
+| Doc | |
+|---|---|
+| [`docs/platform.md`](docs/platform.md) | the whole setup as it stands today — start here |
+| [`docs/dns.md`](docs/dns.md) | both zones, record by record. Mail is load-bearing. |
+| [`docs/newsletter.md`](docs/newsletter.md) | Buttondown, end to end |
+| [`docs/writing-workflow.md`](docs/writing-workflow.md) | **how Jochen writes, and what agents must not do** |
+| [`docs/design-spec.md`](docs/design-spec.md) | why the platform is shaped this way |
+| [`CLOUDFLARE_SETUP.md`](CLOUDFLARE_SETUP.md) | connecting a new Pages project |
+
+| Skill | |
+|---|---|
+| `site-platform` | the Astro engine: local dev, build, schema contract, new sites |
+| `cloudflare` | Pages, deployments, domains, DNS, wrangler |
+| `buttondown` | the Moment Hill newsletter, from `status: ready` to sent |
+| `moment-hill-content` | content for momenthill.com |
+| `shifted-knowledge-content` | content for shiftedknowledge.com |
 
 ---
 
@@ -134,10 +154,34 @@ human act: `push` writes drafts only, and `send` refuses without `--yes`.
 
 The API key lives in `~/.env`, never here.
 
+## Who owns what
+
+The repo split *is* the boundary, which is why it holds.
+
+**Jochen owns** the words and the look: everything in the content repos, plus
+`configs/user.config.ts` and `src/styles/` here. And every decision about what
+goes live and when.
+
+**Agents own** everything that is neither words nor look: Cloudflare
+configuration, triggering and triaging builds, drift between `sites.yml` and
+reality, domain and TLS health, dependency and Astro upgrades, the schema
+contract, and the newsletter pipeline downstream of a finished issue.
+
+Two rules fall out of that:
+
+- **Do not write prose into a content repo unless asked.** Fixing broken
+  frontmatter is maintenance. Writing a paragraph is not. The constraint is
+  stronger than it looks and it is the point of the whole arrangement — read
+  [`docs/writing-workflow.md`](docs/writing-workflow.md) before editing any
+  content repo.
+- **Do not trigger a production deploy or change a domain without saying so
+  first.** Everything short of that needs no permission.
+
 ## Conventions
 
 - British English, no em dashes, no emojis in site-visible copy.
 - Node >= 22.12. npm, not pnpm.
-- Public repo, secret-free. Content stays in content repos.
+- Public repo, secret-free. Content stays in content repos. Secrets live in
+  `~/.env`, sourced explicitly: `set -a; source ~/.env; set +a`.
 - Verify before calling a change done: the assembled build must exit clean
   (`scripts/build-site.sh <site> <content-repo>` locally).
