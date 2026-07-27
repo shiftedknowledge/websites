@@ -4,7 +4,7 @@ import { slugify } from "./text";
 export type Post = CollectionEntry<"posts">;
 export type Page = CollectionEntry<"pages">;
 export type Framework = CollectionEntry<"frameworks">;
-export type Tutorial = CollectionEntry<"tutorials">;
+export type Explainer = CollectionEntry<"explainers">;
 
 const isDev = import.meta.env.DEV;
 
@@ -53,13 +53,13 @@ export function allCategories(frameworks: Framework[]): string[] {
   return Array.from(new Set(frameworks.flatMap((f) => f.data.categories ?? []))).sort();
 }
 
-export async function getAllTutorials(): Promise<Tutorial[]> {
-  return (await getCollection("tutorials", isVisible)).sort(byNewest);
+export async function getAllExplainers(): Promise<Explainer[]> {
+  return (await getCollection("explainers", isVisible)).sort(byNewest);
 }
 
 // The difficulty levels actually present, kept in ascending order for the filter.
 const LEVEL_ORDER = ["beginner", "intermediate", "advanced"] as const;
-export function presentLevels(tutorials: Tutorial[]): string[] {
-  const present = new Set(tutorials.map((t) => t.data.level));
+export function presentLevels(explainers: Explainer[]): string[] {
+  const present = new Set(explainers.map((e) => e.data.level));
   return LEVEL_ORDER.filter((l) => present.has(l));
 }

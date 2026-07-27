@@ -1,6 +1,20 @@
 ---
-// Newsletter — placeholder only. No ESP is wired yet.
-// TODO: replace the form below with the chosen ESP embed (Buttondown / MailerLite).
+// Newsletter signup — Buttondown, via a plain HTML form POST.
+//
+// Deliberately zero-JS: the browser posts the form natively, so there is no
+// script, no API key in the page, and nothing to break if JS is blocked. The
+// cost is that Buttondown owns the confirmation screen, so the form targets a
+// new tab to leave this page where it is.
+//
+// `username` is the newsletter slug (buttondown.com/<username>), not the login
+// email. Configured in configs/user.config.ts; omit that block and this renders
+// in its original inert state.
+import siteConfig from "@/site.config";
+
+const newsletter = siteConfig.newsletter;
+const action = newsletter
+  ? `https://buttondown.com/api/emails/embed-subscribe/${newsletter.username}`
+  : undefined;
 ---
 
 <section class="wrap-prose text-center">
@@ -9,15 +23,54 @@
     Occasional notes on frameworks, AI leverage, and getting strategy delivered.
     No noise.
   </p>
-  <form class="mt-6 flex flex-col gap-3 sm:flex-row" aria-label="Newsletter signup (coming soon)">
-    <input
-      type="email"
-      name="email"
-      placeholder="you@example.com"
-      disabled
-      class="flex-1 rounded border border-border bg-card px-4 py-2.5 text-foreground placeholder:text-muted-foreground"
-    />
-    <button type="button" disabled class="btn-primary opacity-60">Subscribe</button>
-  </form>
-  <p class="mt-2 text-xs text-muted-foreground">Sign-up opens soon.</p>
+
+  {
+    action ? (
+      <form
+        action={action}
+        method="post"
+        target="_blank"
+        rel="noopener"
+        class="mt-6 flex flex-col gap-3 sm:flex-row"
+        aria-label="Newsletter signup"
+      >
+        <label for="newsletter-email" class="sr-only">
+          Email address
+        </label>
+        <input
+          type="email"
+          name="email"
+          id="newsletter-email"
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+          class="flex-1 rounded border border-border bg-card px-4 py-2.5 text-foreground placeholder:text-muted-foreground"
+        />
+        <input type="hidden" name="embed" value="1" />
+        <button type="submit" class="btn-primary">Subscribe</button>
+      </form>
+      <p class="mt-2 text-xs text-muted-foreground">
+        No spam. Unsubscribe at any time.
+      </p>
+    ) : (
+      <>
+        <form
+          class="mt-6 flex flex-col gap-3 sm:flex-row"
+          aria-label="Newsletter signup (coming soon)"
+        >
+          <input
+            type="email"
+            name="email"
+            placeholder="you@example.com"
+            disabled
+            class="flex-1 rounded border border-border bg-card px-4 py-2.5 text-foreground placeholder:text-muted-foreground"
+          />
+          <button type="button" disabled class="btn-primary opacity-60">
+            Subscribe
+          </button>
+        </form>
+        <p class="mt-2 text-xs text-muted-foreground">Sign-up opens soon.</p>
+      </>
+    )
+  }
 </section>

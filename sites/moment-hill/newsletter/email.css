@@ -1,0 +1,153 @@
+/* Moment Hill — newsletter email styling.
+   Derived from src/styles/theme.css (Tyne Bridge identity, locked 2026-06-07).
+
+   Two deliberate departures from the website:
+
+   1. Fonts. The site self-hosts Libertinus woff2. Email clients do not reliably
+      load web fonts, and Outlook does not at all, so this uses the same
+      fallback chain theme.css already declares: Georgia for the serif, the
+      system sans stack for body. The shapes differ; the hierarchy does not.
+
+   2. Layout. No CSS grid, no custom properties. Email clients are roughly a
+      decade behind, and Outlook renders through Word. Everything here is
+      plain, inheritable declarations that degrade to readable text.
+
+   Palette, verbatim from theme.css:
+     charcoal #3f3f3f  text          grey  #6f7c77  muted text
+     tyne     #425e4f  links, heads  sage  #9baca4  hairlines
+     stone    #edeee6  ground        card  #ffffff
+   Burnt Orange #b85c38 is graphics-only and is deliberately absent. */
+
+body,
+.email-body {
+  background-color: #edeee6;
+  color: #3f3f3f;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+/* Headings: serif, Tyne green, tight above and generous below, as on the site. */
+h1, h2, h3, h4 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #425e4f;
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 2em 0 0.6em;
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 23px; }
+h3 { font-size: 19px; }
+h4 { font-size: 17px; font-weight: 700; }
+
+p {
+  margin: 0 0 1.15em;
+}
+
+a {
+  color: #425e4f;
+  text-decoration: underline;
+}
+
+strong { font-weight: 700; color: #3f3f3f; }
+em     { font-style: italic; }
+
+ul, ol {
+  margin: 0 0 1.15em;
+  padding-left: 1.4em;
+}
+
+li { margin-bottom: 0.4em; }
+
+/* Quotes: a Sage rule on the left, no italics. The site does not italicise
+   long quotes and neither should this. */
+blockquote {
+  margin: 1.6em 0;
+  padding: 0.2em 0 0.2em 1.1em;
+  border-left: 3px solid #9baca4;
+  color: #6f7c77;
+}
+
+blockquote p:last-child { margin-bottom: 0; }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background-color: #e3e5da;
+  padding: 0.12em 0.35em;
+  border-radius: 2px;
+}
+
+pre {
+  background-color: #ffffff;
+  border: 1px solid #9baca4;
+  border-radius: 3px;
+  padding: 0.9em 1em;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #9baca4;
+  margin: 2.4em 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 1.15em;
+}
+
+th, td {
+  border-bottom: 1px solid #9baca4;
+  padding: 0.5em 0.6em;
+  text-align: left;
+}
+
+th {
+  font-weight: 700;
+  color: #425e4f;
+}
+
+/* Header and footer blocks, styled by the wrappers in header.html/footer.html. */
+.mh-header {
+  padding-bottom: 1.2em;
+  margin-bottom: 2em;
+  border-bottom: 1px solid #9baca4;
+}
+
+.mh-wordmark {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+  color: #425e4f;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+
+.mh-footer {
+  margin-top: 3em;
+  padding-top: 1.2em;
+  border-top: 1px solid #9baca4;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #6f7c77;
+}
+
+.mh-footer a {
+  color: #6f7c77;
+  text-decoration: underline;
+}

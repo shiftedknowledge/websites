@@ -18,7 +18,7 @@ const userConfig: UserConfig = {
   navigation: [
     { title: "Consulting", url: "/consulting" },
     { title: "Frameworks", url: "/frameworks" },
-    { title: "Tutorials", url: "/tutorials" },
+    { title: "Explainers", url: "/explainers" },
     { title: "Posts", url: "/posts" },
     { title: "About", url: "/about" },
   ],
@@ -30,6 +30,12 @@ const userConfig: UserConfig = {
   email: {
     general: "hello@momenthill.com",
     consulting: "consultancy@momenthill.com",
+  },
+
+  // Buttondown. `username` is the newsletter slug, not the login email — see
+  // NewsletterConfig. Remove this block to put the signup form back to inert.
+  newsletter: {
+    username: "momenthill",
   },
 
   relatedPosts: 3,

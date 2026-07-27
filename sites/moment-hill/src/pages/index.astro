@@ -5,7 +5,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import SEO from "@/components/SEO.astro";
 import Newsletter from "@/components/Newsletter.astro";
 import siteConfig from "@/site.config";
-import tyneBridge from "@/assets/tyne-bridge-cropped.png";
+import tyneBridge from "@/assets/tyne-bridge-hero.png";
 
 const home = await getEntry("pages", "home");
 const tagline = home?.data.tagline ?? siteConfig.tagline;
@@ -18,7 +18,7 @@ const foundation = home?.data.foundation;
   <SEO slot="seo" />
 
   <section>
-    <div class="wrap grid items-end gap-8 py-12 md:grid-cols-2 md:py-20">
+    <div class="wrap grid items-end gap-8 pt-12 md:grid-cols-2 md:pt-20">
       <div>
         <h1 class="font-display text-4xl leading-tight text-primary md:text-5xl">
           {tagline}
@@ -39,7 +39,7 @@ const foundation = home?.data.foundation;
 
   {
     offerings.length > 0 && (
-      <section class="wrap pb-14 md:pb-20">
+      <section class="wrap pt-6 pb-14 md:pb-20">
         <div class="grid gap-6 md:grid-cols-2">
           {offerings.map((o) => (
             <div class="flex flex-col rounded-sm border border-border bg-card p-8">

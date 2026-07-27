@@ -1,0 +1,20 @@
+---
+import { render } from "astro:content";
+import ExplainerLayout from "@/layouts/ExplainerLayout.astro";
+import { getAllExplainers, entrySlug } from "@/utils/content";
+
+export async function getStaticPaths() {
+  const explainers = await getAllExplainers();
+  return explainers.map((explainer) => ({
+    params: { slug: entrySlug(explainer.id) },
+    props: { explainer },
+  }));
+}
+
+const { explainer } = Astro.props;
+const { Content } = await render(explainer);
+---
+
+<ExplainerLayout explainer={explainer}>
+  <Content />
+</ExplainerLayout>

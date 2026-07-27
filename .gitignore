@@ -18,3 +18,6 @@ sites/*/src/content
 .DS_Store
 .idea/
 .vscode/
+
+# Per-machine Claude Code settings (the skill and launch.json DO belong in git).
+.claude/settings.local.json

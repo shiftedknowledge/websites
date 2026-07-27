@@ -1,23 +1,23 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import SEO from "@/components/SEO.astro";
-import TutorialCard from "@/components/TutorialCard.astro";
-import { getAllTutorials, presentLevels } from "@/utils/content";
+import ExplainerCard from "@/components/ExplainerCard.astro";
+import { getAllExplainers, presentLevels } from "@/utils/content";
 
-const tutorials = await getAllTutorials();
-const levels = presentLevels(tutorials);
+const explainers = await getAllExplainers();
+const levels = presentLevels(explainers);
 ---
 
 <BaseLayout>
   <SEO
     slot="seo"
-    title="Tutorials"
-    description="Practical, jargon-free tutorials to upskill, from first steps to advanced."
+    title="Explainers"
+    description="Practical, jargon-free explainers, from first principles to advanced."
   />
   <section class="wrap py-14 md:py-20">
-    <h1 class="font-display text-4xl text-primary md:text-5xl">Tutorials</h1>
+    <h1 class="font-display text-4xl text-primary md:text-5xl">Explainers</h1>
     <p class="mt-4 max-w-prose text-lg text-muted-foreground">
-      Practical, jargon-free upskilling, from first steps to advanced.
+      Practical, jargon-free explanations, from first principles to advanced.
     </p>
 
     {
@@ -26,7 +26,7 @@ const levels = presentLevels(tutorials);
           class="mt-8 flex flex-wrap gap-2"
           id="level-filter"
           role="group"
-          aria-label="Filter tutorials by level"
+          aria-label="Filter explainers by level"
         >
           <button type="button" class="cat-btn is-active" data-level="all">All</button>
           {levels.map((l) => (
@@ -38,12 +38,12 @@ const levels = presentLevels(tutorials);
       )
     }
 
-    <div class="mt-10 space-y-6" id="tutorial-list">
+    <div class="mt-10 space-y-6" id="explainer-list">
       {
-        tutorials.length === 0 ? (
+        explainers.length === 0 ? (
           <p class="text-muted-foreground">Nothing published yet.</p>
         ) : (
-          tutorials.map((tutorial) => <TutorialCard tutorial={tutorial} />)
+          explainers.map((explainer) => <ExplainerCard explainer={explainer} />)
         )
       }
     </div>
@@ -52,7 +52,7 @@ const levels = presentLevels(tutorials);
 
 <script>
   const filter = document.getElementById("level-filter");
-  const list = document.getElementById("tutorial-list");
+  const list = document.getElementById("explainer-list");
   filter?.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest(".cat-btn") as HTMLElement | null;
     if (!btn) return;

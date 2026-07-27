@@ -5,7 +5,7 @@ import { glob } from "astro/loaders";
 export const POSTS_PATH = "src/content/posts/";
 export const PAGES_PATH = "src/content/pages/";
 export const FRAMEWORKS_PATH = "src/content/frameworks/";
-export const TUTORIALS_PATH = "src/content/tutorials/";
+export const EXPLAINERS_PATH = "src/content/explainers/";
 
 const dedupeLower = (arr: string[]) =>
   Array.from(new Set(arr.map((s) => s.toLowerCase())));
@@ -70,11 +70,11 @@ const frameworks = defineCollection({
   }),
 });
 
-// Tutorials: upskilling articles that sit between blog posts and frameworks.
+// Explainers: articles that sit between blog posts and frameworks.
 // Same shape as a framework, but educational (no buy link) and tagged with a
 // single difficulty level (beginner / intermediate / advanced) for the filter.
-const tutorials = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: `./${TUTORIALS_PATH}` }),
+const explainers = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: `./${EXPLAINERS_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -86,4 +86,4 @@ const tutorials = defineCollection({
   }),
 });
 
-export const collections = { posts, pages, frameworks, tutorials };
+export const collections = { posts, pages, frameworks, explainers };

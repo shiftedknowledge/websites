@@ -116,6 +116,24 @@ restoring the previous SHA and redeploying. Do this per site, one at a time.
 5. Create the Cloudflare Pages project against the content repo and follow
    `CLOUDFLARE_SETUP.md`.
 
+## Newsletters
+
+Moment Hill has a Buttondown newsletter. The operating manual is
+[`docs/newsletter.md`](docs/newsletter.md); agent instructions are in
+`.claude/skills/buttondown/SKILL.md`.
+
+The shape mirrors the rest of the platform. `scripts/buttondown.mjs` is the
+site-agnostic CLI, `newsletter.username` in a site's `user.config.ts` is the only
+per-site config, and issues live in a `newsletters/` folder at the **root** of
+that site's content repo, beside `content/` and therefore invisible to
+`build-site.sh`. A site without a `newsletter` block renders an inert signup form
+and costs nothing.
+
+The newsletter is not the blog and does not read from it. Sending is always a
+human act: `push` writes drafts only, and `send` refuses without `--yes`.
+
+The API key lives in `~/.env`, never here.
+
 ## Conventions
 
 - British English, no em dashes, no emojis in site-visible copy.

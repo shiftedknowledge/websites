@@ -1,0 +1,23 @@
+<!-- Moment Hill — email footer.
+     Deliberately minimal: no archive link, no "view in browser", no social
+     icons, no sharing prompts. The only outbound links are the site itself and
+     the unsubscribe.
+
+     {{unsubscribe_url}} is Buttondown's per-subscriber template variable.
+     Buttondown also sets List-Unsubscribe headers on every email, so Gmail and
+     Apple Mail show their own unsubscribe control regardless of this link.
+
+     The company block is not decoration: a UK limited company must give its
+     registered name, number, place of registration and registered office in its
+     business communications, electronic ones included. -->
+<div class="mh-footer" style="margin-top:3em;padding-top:1.2em;border-top:1px solid #9baca4;font-size:13px;line-height:1.6;color:#6f7c77;">
+  <p style="margin:0 0 0.8em;">
+    You are receiving this because you subscribed at
+    <a href="https://momenthill.com" style="color:#6f7c77;text-decoration:underline;">momenthill.com</a>.
+    <a href="{{unsubscribe_url}}" style="color:#6f7c77;text-decoration:underline;">Unsubscribe</a>.
+  </p>
+  <p style="margin:0;font-size:12px;color:#9baca4;">
+    Moment Hill Limited, registered in England and Wales, company number 17209339.
+    Registered office: Collingwood Buildings, 38 Collingwood Street, Newcastle NE1 1JF.
+  </p>
+</div>
