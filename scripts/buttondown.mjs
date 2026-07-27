@@ -145,7 +145,16 @@ function stampFrontmatter(raw, key, value) {
 // ------------------------------------------------------------------- commands
 
 async function cmdWhoami() {
-  const data = await api("/newsletters");
+  const data = await api("/newsletters", { soft: true });
+  if (data?.ok === false) {
+    die(
+      `Cannot read the newsletter (${data.status}).\n\n` +
+        "`whoami`, `settings` and `design` all read /v1/newsletters, which needs\n" +
+        "Settings permission. The key is likely scoped without it — that is a\n" +
+        "deliberate posture, not a fault. `push`, `send`, `list` and\n" +
+        "`subscribers` are unaffected.",
+    );
+  }
   const list = data.results ?? [];
   if (!list.length) die("The key is valid but no newsletters came back.");
 
@@ -350,16 +359,27 @@ async function cmdSend(id, args) {
 
   if (!args.includes("--yes")) {
     const { count } = await api("/subscribers?type=regular");
-    const n = await newsletterId();
+
+    // Reading test_mode needs Settings permission, which the key may not have.
+    // That must never block a send: the warning is a convenience, sending is
+    // the job. Degrade to the cautious wording rather than failing.
+    const res = await api("/newsletters", { soft: true });
+    const testMode = res?.ok === false ? null : (res.results ?? [])[0]?.test_mode;
+
     die(
-      n.test_mode
+      testMode === true
         ? `About to send "${email.subject}".\n` +
             `TEST MODE IS ON: it goes to the account address only. The ${count} ` +
             `subscriber(s)\non the list receive nothing, and the email stays a draft.\n` +
             "Re-run with --yes."
-        : `About to send "${email.subject}" to ${count} subscriber(s).\n` +
-            "TEST MODE IS OFF. This is the real list and it cannot be undone.\n" +
-            "Re-run with --yes if that is what you want.",
+        : testMode === false
+          ? `About to send "${email.subject}" to ${count} subscriber(s).\n` +
+              "TEST MODE IS OFF. This is the real list and it cannot be undone.\n" +
+              "Re-run with --yes if that is what you want."
+          : `About to send "${email.subject}" to ${count} subscriber(s).\n` +
+              "Could not read test mode (the key lacks Settings permission), so\n" +
+              "ASSUME THIS IS THE REAL LIST and cannot be undone.\n" +
+              "Re-run with --yes if that is what you want.",
     );
   }
 
