@@ -31,8 +31,21 @@ Hover and still served by Squarespace. Nothing has been deleted at Hover.
 - Phase 2 verification passed: all five mail queries answer identically from
   `alex.ns.cloudflare.com` and `ns1.hover.com`.
 
-Remaining: attach the Pages custom domain, add DMARC, then the nameserver switch
-at Hover.
+- **DMARC added** and verified live on Cloudflare's nameservers:
+  `v=DMARC1; p=none; rua=mailto:hello@momenthill.com`. Monitor mode, so it
+  changes no delivery behaviour; it just starts the reports.
+- **DNSSEC is off** and always has been. Checked for `DS` records at the `.com`
+  registry and there are none, so there is nothing to disable before the move.
+  Same as shiftedknowledge.com.
+
+Remaining: create the git-connected Pages project, attach the custom domain,
+then the nameserver switch at Hover.
+
+**Blocked:** the Cloudflare Pages GitHub App can only see
+`shifted-knowledge-content`. Before a git-connected project can be created for
+Moment Hill, its repository access must be extended to
+`shiftedknowledge/moment-hill-content` (GitHub → Settings → Applications →
+Cloudflare Pages → Configure).
 
 ## The zone as it stands
 
