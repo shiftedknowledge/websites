@@ -13,11 +13,25 @@ around making that impossible rather than unlikely.
 
 ---
 
-## Status
+## Status: DONE (2026-07-27)
 
-**Phases 0 to 2 are done (2026-07-27). Nothing is live yet.** The zone exists at
-Cloudflare and answers correctly, but `momenthill.com` is still delegated to
-Hover and still served by Squarespace. Nothing has been deleted at Hover.
+`momenthill.com` is delegated to Cloudflare (`alex` / `donna.ns.cloudflare.com`)
+and serves the Astro site from the `moment-hill` Pages project. Registration
+stayed at Hover; only DNS moved.
+
+**Mail never broke.** Verified through live public resolution after the switch:
+MX, SPF, the `MS=` verification TXT, both DKIM selectors, `autodiscover` and
+DMARC all answering correctly.
+
+One thing worth knowing for next time: immediately after the cutover, `curl`
+reported `server: Squarespace` on the apex while `dig` showed Cloudflare's IPs.
+That was a stale local DNS cache, not a failed migration. Test with
+`curl --resolve momenthill.com:443:<cloudflare-ip>` to see the truth.
+
+The record-by-record history below is kept because it is the audit trail for a
+migration that carried live business email.
+
+### Original plan and verification (kept for the record)
 
 - Zone `momenthill.com` created on the Free plan.
 - All six mail records imported by Cloudflare's scan and verified byte for byte

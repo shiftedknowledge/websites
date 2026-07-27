@@ -25,5 +25,7 @@ sites:
     output_dir: .infra/sites/moment-hill/dist
     schema: 1            # must equal sites/moment-hill/CONTENT_SCHEMA
     node_version: 22     # Cloudflare NODE_VERSION (Option A: npm, Node 22)
-    domain: momenthill.com                # custom domain (apex + www) — NOT yet attached; DNS/M365 migration pending
+    domain: momenthill.com                # apex + www attached 2026-07-27; nameservers moved Hover -> Cloudflare
+                                          # (alex/donna.ns.cloudflare.com). Registration stays at Hover.
+                                          # M365 mail carried across intact; see docs/dns-moment-hill.md.
     infra_ref: main      # Cloudflare INFRA_REF tracks main (active dev); pin a SHA to freeze
