@@ -22,7 +22,9 @@ const posts = await getAllPosts();
     <div class="mt-10 space-y-6">
       {
         posts.length === 0 ? (
-          <p class="text-muted-foreground">Nothing published yet.</p>
+          <p class="text-muted-foreground">
+            Coming soon. The first pieces are being written.
+          </p>
         ) : (
           posts.map((post) => <PostCard post={post} />)
         )
