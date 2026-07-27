@@ -169,3 +169,8 @@ Recorded so they are not rediscovered as surprises.
   path for mail.
 - Squarespace is still being paid for.
 - Moment Hill has no site search. Fine for its size; a decision, not a gap.
+- `shifted-knowledge`'s **preview** `INFRA_REF` is pinned to the first platform
+  commit while production tracks `main`. Harmless while no preview branches
+  exist.
+- Nothing watches any of this. A broken build, an expired certificate or a site
+  that stops resolving would be noticed by someone visiting it.

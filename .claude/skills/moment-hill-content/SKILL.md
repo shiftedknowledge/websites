@@ -86,9 +86,10 @@ content**. The content push is what triggers the build.
 escapes them and hand-renders only `**bold**` and paragraph breaks. Links,
 italics and lists appear literally.
 
-Two known blemishes Jochen has not addressed, so do not silently fix them:
-`foundation.headline` reads "here proven business thinking meets practical AI."
-(missing a W) and contains a zero-width space (U+200B).
+`foundation.headline` carries a **trailing zero-width space (U+200B)**. Invisible
+and harmless, but it is why that line can look odd in a diff or a grep. Removing
+it is safe maintenance; doing so means a content push, which deploys, so say
+first.
 
 ## Frontmatter breaks in specific ways
 
