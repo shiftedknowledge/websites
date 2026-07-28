@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "glightbox/dist/css/glightbox.min.css";
 @import "./theme.css";
 @import "./typography.css";
 
@@ -228,19 +227,6 @@ html {
   .gallery-item__image {
     @apply w-full h-full object-cover block aspect-3/2 rounded-sm ;
     transition: opacity 0.2s ease, filter 0.2s ease;
-  }
-
-  /* ── GLightbox overrides ─────────────────────────── */
-  .glightbox-clean .gslide-description {
-    @apply bg-background;
-  }
-
-  .glightbox-clean .gslide-title {
-    @apply text-foreground;
-  }
-
-  .glightbox-clean .gslide-desc {
-    @apply text-muted-foreground;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -59,6 +59,7 @@ All from the root of this repo.
 ```bash
 scripts/buttondown.mjs whoami                  # verify the key; print the real username
 scripts/buttondown.mjs subscribers             # confirmed subscriber count
+scripts/buttondown.mjs subscribers --details   # addresses too; avoid in shared transcripts
 scripts/buttondown.mjs list                    # every email and its status
 scripts/buttondown.mjs list --status draft     # just what is queued
 scripts/buttondown.mjs show <id>               # full JSON for one email
@@ -284,6 +285,15 @@ until proven otherwise.
 - **`send-draft` needs a JSON body.** With none it 422s "field required:
   payload". The body *is* the payload, so `{}` means send with defaults. A
   nested `{"payload": {}}` is rejected.
+- **How publishing works is contested.** The CLI publishes with
+  `POST /emails/{id}/send-draft`. The 2026-07-28 audit read Buttondown's docs as
+  saying that route only mails preview copies, and proposed
+  `PATCH /emails/{id}` with `status: about_to_send` instead. The account
+  contradicts that reading: the single issue ever sent reports 5 recipients,
+  5 deliveries and 1 unsubscription, and the `send-draft` code was committed
+  three hours before that send went out. The mechanism with delivery evidence
+  is the one in the CLI. Before switching, turn **test mode on**, send a
+  throwaway draft with the replacement, and confirm it arrives.
 - **Test mode is OFF.** `test_mode: false` as of 2026-07-27. Every send goes to
   the real list. When it was on, a send went to the account address only and
   left the email a draft, so "still a draft" did not mean the send had failed;

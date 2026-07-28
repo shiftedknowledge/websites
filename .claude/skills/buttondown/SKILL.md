@@ -13,6 +13,7 @@ and refuses to send without an explicit flag.
 ```bash
 scripts/buttondown.mjs whoami                  # verify the key, get the real username
 scripts/buttondown.mjs subscribers             # confirmed subscriber count
+scripts/buttondown.mjs subscribers --details   # addresses too; avoid in shared transcripts
 scripts/buttondown.mjs list --status draft     # what is queued
 scripts/buttondown.mjs push <file.md>          # markdown -> draft
 scripts/buttondown.mjs send <id> --yes         # irreversible
@@ -127,9 +128,9 @@ measured and senior.
 
 - The API rejects a body starting with `---`, reading it as stray frontmatter.
   The CLI strips ours already; if you ever call the API directly, strip it too.
-- `POST /emails/{id}/send-draft` requires a JSON body. With none it 422s with
-  "field required: payload". The body **is** the payload, so `{}` means "send
-  with defaults" — a nested `{"payload": {}}` is rejected as an extra input.
+- Publishing a signed-off draft is `PATCH /emails/{id}` with
+  `status: about_to_send`. `POST /emails/{id}/send-draft` only sends preview
+  copies to selected recipients; it does not publish to the newsletter list.
 - **Test mode is OFF** (`test_mode: false`, 2026-07-27). Every send reaches the
   real list. There is no harmless "test" send any more. When it was on, a send
   went to the account address only and left the email a draft; that behaviour no

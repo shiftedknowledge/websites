@@ -1,6 +1,19 @@
 ---
 import HomeIcon from "@/assets/home.svg"
 
+interface Props {
+  /**
+   * The real title of the thing being viewed. Used for the final crumb.
+   *
+   * Without it the label is derived from the slug and title-cased word by word,
+   * which turns "markdown-and-ai" into "Markdown And Ai". Slugs are lossy;
+   * the entry knows its own title, so pass it.
+   */
+  title?: string;
+}
+
+const { title } = Astro.props;
+
 const pathname = Astro.url.pathname;
 
 const segments = pathname
@@ -15,13 +28,16 @@ const breadcrumbs = segments.map(
         .slice(0, index + 1)
         .join("/");
 
-    const label = decodeURIComponent(
-      segment
-    )
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (char) =>
-        char.toUpperCase()
-      );
+    const isLast = index === segments.length - 1;
+
+    const label =
+      isLast && title
+        ? title
+        : decodeURIComponent(segment)
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (char) =>
+              char.toUpperCase()
+            );
 
     return {
       label,

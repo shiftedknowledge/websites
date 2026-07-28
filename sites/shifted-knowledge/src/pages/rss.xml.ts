@@ -59,11 +59,8 @@ export async function GET(context: APIContext) {
   // so the remark plugins (obsidian links, callouts, image processing) and
   // Astro's image optimisation apply exactly as they do on the page.
   //
-  // No renderers are registered: every post is plain markdown, whose Content is
-  // an ordinary Astro component. An .mdx post using a framework component would
-  // need one added here, and @astrojs/mdx 6.0.3's container renderer currently
-  // fails to bundle (an unresolved "satteri" import), so that is a real change
-  // rather than a one-liner.
+  // No renderers are registered: the content contract accepts plain markdown
+  // only, whose Content is an ordinary Astro component.
   const container = await AstroContainer.create();
 
   const items = await Promise.all(

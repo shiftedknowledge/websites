@@ -5,6 +5,12 @@
 **Status:** For review. Do not build until approved.
 **Date:** 2026-07-23 (revised after engineering review)
 
+> **Current-state note, 2026-07-28:** this records the rationale that led to the
+> platform, but two implementation choices changed during active development.
+> Production `INFRA_REF` follows `main` unless a site is deliberately frozen to a
+> commit SHA, and content entries are flat `<slug>.md` files. For operational
+> facts, [`platform.md`](platform.md) and [`../AGENTS.md`](../AGENTS.md) win.
+
 This document specifies how to build and run a small family of independent
 websites (Shifted Knowledge, Moment Hill, and later a third) on one shared piece
 of infrastructure. Every design decision here is settled: the engineer should not
@@ -57,11 +63,10 @@ These are settled. Review them; this list is the thing to get right before we bu
 6. **One Cloudflare account** hosts one Pages project per content repo, and **each
    site has its own custom domain**.
 7. **Cloudflare builds the content repo**, not the infrastructure repo. The build
-   pulls the infrastructure in as a dependency at a pinned version (see section 5).
-8. **The infrastructure version is pinned to an immutable commit SHA**, never a
-   moving branch or a reusable tag. A build is therefore exactly reproducible, and
-   infrastructure changes reach a site only when its pin is deliberately bumped
-   (see the release procedure in section 5).
+   pulls the infrastructure in at the configured `INFRA_REF` (see section 5).
+8. **`INFRA_REF` can be `main` or an immutable commit SHA.** The current default is
+   `main` during active development. Freeze an individual site to a SHA when
+   reproducibility and deliberate per-site rollout matter more than immediacy.
 9. **A failed content build never replaces the live site.** Cloudflare keeps the
    last successful deployment serving until a build succeeds. Publishing is
    fail-safe by default.
@@ -70,8 +75,8 @@ These are settled. Review them; this list is the thing to get right before we bu
 11. **Draft control is a per-entry frontmatter flag** (`draft: true`), and the
     platform holds this invariant: every production-facing surface excludes drafts,
     while drafts are still schema-validated. Concretely, `draft: true` entries are
-    excluded from page routes, listing pages, RSS, the sitemap, and the search
-    index; but a draft with broken frontmatter still fails validation. A draft is
+    excluded from page routes, listing pages, RSS, and the sitemap; but a draft
+    with broken frontmatter still fails validation. A draft is
     pushed and synced like any file, and stays invisible on the live site until the
     flag is cleared. This is how "save" and "publish" are separated with no extra
     machinery. (The Lipi theme SK is built on already implements this; the engineer
@@ -142,14 +147,14 @@ file formats, slug rules, image placement and naming, and draft behaviour.
 
 ```yaml
 site: shifted-knowledge
-schema: 1
+schema: 3
 ```
 
-The build refuses to run if a content repo's `schema` does not match the version
-the pinned site app expects, and says so clearly (see section 5). This is the cheap
+The build refuses to run if a content repo's `site` or `schema` does not match the
+configured site app, and says so clearly (see section 5). This is the cheap
 insurance that stops an infrastructure change from silently breaking existing
-content when a site's pin is bumped. It is intentionally lightweight: a single
-version integer and a fail-loud check, not a negotiation protocol.
+content. It is intentionally lightweight: a site identifier, a single version
+integer and a fail-loud check, not a negotiation protocol.
 
 ## 4. Roles
 
@@ -181,8 +186,8 @@ public.
 **The build itself.** On a push, Cloudflare spins up a throwaway build machine and:
 
 1. Checks out the content repo (the connected repo).
-2. Clones the infrastructure repo at the pinned commit SHA.
-3. Verifies the content repo's `content-contract.yml` schema matches what the pinned
+2. Clones the infrastructure repo at the configured `INFRA_REF`.
+3. Verifies the content repo's `content-contract.yml` schema matches what the fetched
    site app expects; aborts with a clear message if not.
 4. Copies the content repo's `content/` into the matching app under
    `sites/<site>/src/content/`.
@@ -197,8 +202,8 @@ is published and the previously live version stays up (decision 9).
 
 **The build logic lives in one script in the infrastructure repo**,
 `scripts/build-site.sh`, so the content repo stays clean and the Cloudflare build
-command is a two-liner. Because a commit SHA is not a branch, the infra clone uses
-fetch-by-SHA rather than `git clone --branch`:
+command is a two-liner. `git fetch` accepts either the current `main` setting or a
+full commit SHA:
 
 ```bash
 # Cloudflare build command (set per project in the Cloudflare dashboard):
@@ -213,8 +218,7 @@ git init .infra \
 **`build-site.sh` is written defensively**, because it operates on a copied repo:
 
 - reject any `$SITE` not on an explicit allowlist of known site folders;
-- confirm the fetched infra `HEAD` equals the expected `$INFRA_REF` SHA;
-- validate `content-contract.yml` before doing anything else;
+- validate the contract's site and schema before doing anything else;
 - delete the destination `src/content/` before copying, so no stale files survive;
 - copy content without following symlinks, and refuse paths that escape `content/`;
 - never let copied content overwrite `package.json`, the Astro config, or any app
@@ -226,15 +230,14 @@ git init .infra \
 mirrored for humans in `sites.yml`, so the content repo needs no build files at all):
 
 - `INFRA_REPO` — the public infrastructure repo URL.
-- `INFRA_REF` — the pinned infrastructure **commit SHA** this site builds against.
-  A readable tag may sit beside it for humans, but the value that builds is the SHA.
-  This is how infrastructure changes are rolled out deliberately, one site at a
-  time, by bumping this one value.
+- `INFRA_REF` — `main` during active development, or a full commit SHA for a
+  frozen, reproducible site.
 - `SITE` — the folder name under `sites/` for this site.
 
-**Rolling out an infrastructure change (the release procedure).** Changing the pin
-does not by itself rebuild anything, so an infra release is an explicit, per-site
-operation:
+**Rolling out an infrastructure change.** Cloudflare watches the content repo, not
+this infrastructure repo, so an infra-only change needs a rebuild nudge. While a
+site follows `main`, push the tested change and retry the deployment or make a
+trivial content commit. For a site frozen to a SHA:
 
 1. Update `INFRA_REF` to the new SHA for one site.
 2. Trigger a fresh deployment of that site against its current content.
@@ -243,8 +246,8 @@ operation:
 5. To roll back, restore the previous SHA and redeploy. The previous commit is
    always recorded, so rollback is immediate.
 
-Sites therefore move to new infrastructure one at a time, on purpose, never all at
-once by accident.
+SHA-frozen sites therefore move one at a time. Sites tracking `main` take the latest
+infrastructure on their next build.
 
 **Triggers and previews.** Auto-deploy is on, so a push to a content repo's
 production branch starts a build. Pushes to any other branch produce a Cloudflare
@@ -267,8 +270,8 @@ Cloudflare build. Both statements are true; the boundary is about *who*, not *ne
 For a content person (including the owner, and later the third site's owner):
 
 1. Open the content repo (VS Code on desktop, or Working Copy on iOS).
-2. Write or edit a markdown entry as `content/posts/<slug>/index.md`, with any
-   images in the same folder. Keep `draft: true` while it is unfinished.
+2. Write or edit a flat markdown entry as `content/posts/<slug>.md`, with any
+   images beside it. Keep `draft: true` while it is unfinished.
 3. Commit and push. The draft is now saved and synced across devices, and invisible
    on the live site.
 4. When ready, set `draft: false` and push. The site rebuilds and the entry is live
@@ -300,27 +303,26 @@ under the owner for now. Two things to accept deliberately rather than by accide
   not a minutes-long transfer. The architecture stays cleanly separable; the
   handover simply is not trivial.
 
-## 8. First implementation: Shifted Knowledge
+## 8. First implementation: Shifted Knowledge (historical)
 
-SK already exists as a single repo (`shiftedknowledge/shiftedknowledge-site`, built
-on the Lipi theme, fully brand-themed, not yet deployed). It is the proof of
-concept, and because it is not live yet, now is the cheapest moment to split it.
+This section records the original rollout plan. Shifted Knowledge is now split
+and live; the current configuration is in `docs/platform.md`.
 
 The engineer will:
 
 1. Create the `websites` infrastructure repo (with `sites.yml` and `AGENTS.md`) and
    move SK's Astro app into `sites/shifted-knowledge/`.
 2. Create `shifted-knowledge-content`, move SK's `src/content/` into it as
-   `content/`, add `content-contract.yml` (`schema: 1`), and write a content-side
+   `content/`, add `content-contract.yml`, and write a content-side
    `AGENTS.md` carrying the SK voice, brand notes, and the documented content
    contract.
 3. Write `scripts/build-site.sh` to the defensive spec in section 5, and prove the
    assembled build locally (fetch-by-SHA infra clone, contract check, content copy,
    `npm ci && npm run build`, `dist/` verified).
 4. Create the Cloudflare Pages project against `shifted-knowledge-content`, do the
-   one-time Connect-to-Git, set the three env vars (`INFRA_REPO`, `INFRA_REF` as a
-   SHA, `SITE`), connect the domain, and confirm a push publishes and a failed build
-   leaves the last good deploy up.
+   one-time Connect-to-Git, set the environment variables (`INFRA_REPO`,
+   `INFRA_REF`, `SITE`, `NODE_VERSION`), connect the domain, and confirm a push
+   publishes and a failed build leaves the last good deploy up.
 
 SK then becomes the reference the other two sites copy.
 

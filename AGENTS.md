@@ -72,7 +72,7 @@ scripts/dev-link.sh shifted-knowledge ../website-content/shifted-knowledge
 cd sites/shifted-knowledge
 npm install
 ./preview.sh          # live, drafts visible, opens in Safari + a LAN URL
-./preview.sh final    # the exact production build (drafts hidden, search + images)
+./preview.sh final    # the exact production build (drafts hidden, images optimised)
 ```
 
 Use `npm run build` for production. Neither site has a build step beyond
@@ -84,7 +84,7 @@ Cloudflare's Pages project for a site is connected to that site's **content repo
 On a push it spins up a throwaway build machine that:
 
 1. checks out the content repo (the connected repo),
-2. clones this infra repo at a pinned commit SHA,
+2. clones this infra repo at the configured `INFRA_REF` (currently `main`),
 3. verifies the content repo's `content-contract.yml` schema matches the app's
    `CONTENT_SCHEMA` (aborts clearly if not),
 4. copies the content into `sites/<site>/src/content`,

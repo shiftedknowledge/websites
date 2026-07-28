@@ -53,8 +53,8 @@ Local checkouts on this machine:
 | Voice | first person, plain | measured, senior, British |
 
 Both are bespoke Astro 6 apps on Tailwind v4. They share the build and deploy
-plumbing and nothing visual. `CONTENT_SCHEMA` is `2` for Shifted Knowledge and
-`1` for Moment Hill; the number is per site and they are not meant to march in
+plumbing and nothing visual. `CONTENT_SCHEMA` is `3` for Shifted Knowledge and
+`2` for Moment Hill; the number is per site and they are not meant to march in
 step.
 
 Shifted Knowledge's structure is deliberately two-shelved and deliberately
@@ -78,10 +78,12 @@ to this one. A push to content triggers the build:
 
 1. Cloudflare checks out the content repo.
 2. The build command clones this repo at `INFRA_REF` into `.infra/`.
-3. [`build-site.sh`](../scripts/build-site.sh) runs. It checks
-   `content-contract.yml` against the app's `CONTENT_SCHEMA`, copies every
-   `content/*/` directory into `sites/<site>/src/content/`, runs `npm ci && npm
-   run build`, and confirms `dist/` is non-empty.
+3. [`build-site.sh`](../scripts/build-site.sh) runs. It checks both the site and
+   schema in `content-contract.yml` against the app, rejects symlinks, copies
+   every `content/*/` directory into `sites/<site>/src/content/`, runs `npm ci
+   && npm run build`, and confirms `dist/` is non-empty. The collection loaders
+   accept markdown only; MDX is deliberately excluded because it can execute
+   JavaScript during a build.
 4. `dist/` is published; the machine is destroyed.
 
 A failed build publishes nothing. The last good deployment stays live.
@@ -187,30 +189,26 @@ current state is recorded rather than left for each reader to re-derive. As of
 
 | | high | moderate | low |
 |---|---|---|---|
-| `shifted-knowledge` | 6 | 2 | 1 |
-| `moment-hill` | 3 | 4 | 1 |
+| `shifted-knowledge` | 2 | 0 | 1 |
+| `moment-hill` | 2 | 0 | 1 |
 
-The high-severity advisories are `astro`, `sharp`, `vite`, `postcss`, `js-yaml`
-and `svgo`. **Read where each one actually runs before treating it as exposure:**
+The remaining high-severity advisories are `astro` and `sharp`. **Read where
+each one actually runs before treating it as exposure:**
 
-- `vite` (`server.fs.deny` bypass, `launch-editor` NTLM disclosure) — **dev
-  server only, and Windows-specific.** Never runs in production; the build hosts
-  are Linux and the author's machine is macOS.
-- `postcss`, `js-yaml`, `svgo`, `sharp`/libvips — **build-time only.** They
-  process this project's own CSS, frontmatter, SVGs and images, inside a
-  throwaway Cloudflare build container, from private repos. There is no
-  attacker-supplied input anywhere in that path.
-- `astro` (three XSS advisories, view transitions and spread attributes) — the
-  only class that touches **published output**. Both sites use `ClientRouter`,
-  so the view-transition advisory is in-scope in principle. In practice the
-  vector needs attacker-controlled values reaching those directives, and every
-  byte of content is authored by one person in a private repo. Real risk today:
-  low. Real risk if these sites ever accept third-party input: not low.
+- `sharp`/libvips is **build-time only**. It processes images in a throwaway
+  Cloudflare build worker. A malformed image from a compromised content repo is
+  still untrusted input, but the practical blast radius here is the disposable
+  build; a failed build leaves the last good site live.
+- `astro` includes XSS advisories around view transitions and spread attributes.
+  Shifted Knowledge uses `ClientRouter`; Moment Hill does not. The vectors need
+  attacker-controlled values to reach those directives, while these sites have
+  no user input and accept only owner-authored markdown. Real risk today: low.
+  Real risk if either site starts accepting third-party input: not low.
 
 The fix for the `astro` and `sharp` advisories is **Astro 7**, a major version
 bump on two bespoke apps. That is a deliberate piece of work, not a patch, and
-it has not been done. `postcss`, `js-yaml`, `svgo` and `vite` have non-breaking
-fixes available and are simply pending.
+it has not been done. The non-breaking `@astrojs/rss`, `postcss`, `js-yaml`,
+`svgo`, `vite` and `nanoid` fixes were applied during the 2026-07-28 audit.
 
 Nothing here is an emergency. Nothing here should be dismissed either — this
 note exists so the decision is visible rather than implied by silence.
@@ -259,26 +257,23 @@ Recorded so they are not rediscovered as surprises.
   path for mail.
 - Squarespace is still being paid for.
 - Neither site has search. Fine at this size; a decision, not a gap.
-- **Moment Hill has no Content-Security-Policy; Shifted Knowledge has one.** Not
-  an oversight to fix blindly: Moment Hill's newsletter signup is a native form
-  POST to `buttondown.com`, and a careless `form-action` or `connect-src` policy
-  would silently break the one conversion path on the site. Worth doing, worth
-  doing carefully.
+- Both apps now carry Cloudflare Pages `_headers` files with a
+  Content-Security-Policy. Moment Hill explicitly permits `form-action` to
+  `https://buttondown.com`, so the newsletter POST is not blocked. These rules
+  will not appear on the live sites until the repaired infrastructure is pushed
+  and each site is rebuilt.
 - **Astro 7 is available and would clear the `astro` and `sharp` advisories.**
   A major bump across two bespoke apps; see "Dependencies" above for why it is
   not urgent and not ignorable.
-- Shifted Knowledge's RSS feed renders each post with Astro's container API and
-  registers **no renderers**, because `@astrojs/mdx` 6.0.3's container renderer
-  fails to bundle (an unresolved `satteri` import). Every post is plain markdown
-  so this costs nothing today, but an `.mdx` post using a framework component
-  would need that resolved first.
+- Shifted Knowledge's RSS feed renders each post with Astro's container API.
+  Content is markdown-only, so it needs no framework renderers.
 - `shifted-knowledge`'s **preview** `INFRA_REF` is pinned to the first platform
   commit while production tracks `main`. Harmless while no preview branches
   exist.
 - **There are no automated tests and no type-check step.** `@astrojs/check` is
   not installed in either app. The only gate on a change is that
   `scripts/build-site.sh` exits clean, which catches schema and syntax errors
-  and nothing else. For a static site with two content collections this is a
+  and nothing else. For two small static sites this is a
   defensible trade; it is still the largest single gap in the setup.
 - Nothing watches any of this. A broken build, an expired certificate or a site
   that stops resolving would be noticed by someone visiting it.

@@ -12,14 +12,13 @@ const dedupeLower = (arr: string[]) =>
 
 // Blog posts. Filename = slug (flat, lowercase, hyphenated).
 const posts = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: `./${POSTS_PATH}` }),
+  loader: glob({ pattern: "**/*.md", base: `./${POSTS_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     published: z.coerce.date(),
     updated: z.coerce.date().optional(),
     tags: z.array(z.string()).transform(dedupeLower).optional(),
-    cover: z.string().optional(),
     draft: z.boolean().default(false),
   }),
 });
@@ -27,7 +26,7 @@ const posts = defineCollection({
 // Standalone prose pages: consulting, about, privacy, terms — and home.md, which
 // carries the hero copy consumed by index.astro (the extra optional fields below).
 const pages = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: `./${PAGES_PATH}` }),
+  loader: glob({ pattern: "**/*.md", base: `./${PAGES_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -56,14 +55,13 @@ const pages = defineCollection({
 // Frameworks: article + images + an optional buy link to the MoR. Multi-category,
 // newest-first, filtered on the overview. New framework = one file.
 const frameworks = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: `./${FRAMEWORKS_PATH}` }),
+  loader: glob({ pattern: "**/*.md", base: `./${FRAMEWORKS_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     published: z.coerce.date(),
     updated: z.coerce.date().optional(),
     categories: z.array(z.string()).transform(dedupeLower).default([]),
-    cover: z.string().optional(),
     buyUrl: z.string().url().optional(),
     buyLabel: z.string().optional(),
     draft: z.boolean().default(false),
@@ -74,14 +72,13 @@ const frameworks = defineCollection({
 // Same shape as a framework, but educational (no buy link) and tagged with a
 // single difficulty level (beginner / intermediate / advanced) for the filter.
 const explainers = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: `./${EXPLAINERS_PATH}` }),
+  loader: glob({ pattern: "**/*.md", base: `./${EXPLAINERS_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     published: z.coerce.date(),
     updated: z.coerce.date().optional(),
     level: z.enum(["beginner", "intermediate", "advanced"]),
-    cover: z.string().optional(),
     draft: z.boolean().default(false),
   }),
 });

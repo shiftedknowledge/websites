@@ -36,7 +36,7 @@ scripts/dev-link.sh <site> ../website-content/<site>
 
 cd sites/<site> && npm install
 ./preview.sh          # live reload, drafts visible
-./preview.sh final    # the exact production build — drafts hidden, search, images
+./preview.sh final    # the exact production build — drafts hidden, images optimised
 ```
 
 `dev-link.sh` symlinks `sites/<site>/src/content` at the content repo's
@@ -58,22 +58,23 @@ This is byte for byte what Cloudflare runs. **It is the verification step** —
 skips image optimisation. Run it before calling any app change done.
 
 What it does, in order: allowlist the site name, check
-`content-contract.yml`'s `schema:` against the app's `CONTENT_SCHEMA`, wipe and
-repopulate `src/content/` from every `content/*/` directory, `npm ci && npm run
-build`, then confirm `dist/` is non-empty.
+`content-contract.yml`'s `site:` and `schema:` against the selected app, reject
+symlinks under `content/`, wipe and repopulate `src/content/` from every
+`content/*/` directory, `npm ci && npm run build`, then confirm `dist/` is
+non-empty.
 
 It writes **only** into `sites/<site>/src/content`. Keep it that way.
 
 ## The content contract, and its blind spot
 
 `CONTENT_SCHEMA` (app) must equal `schema:` (content repo). Mismatch aborts the
-build with a clear message. Both are `1` today.
+build with a clear message. Shifted Knowledge is `3`; Moment Hill is `2`.
 
-**The contract catches version skew, not collection renames.** Renaming a
+**The contract catches version skew only when its version is bumped.** Renaming a
 collection is a two-repo change: `content.config.ts` here, the directory in the
-content repo. Both sides keep `schema: 1`, so the guard passes happily and the
-build ships an empty section. The tutorials → explainers rename hit exactly
-this.
+content repo. If both sides retain the old schema number, the guard passes and
+the build can ship an empty section. The tutorials → explainers rename hit
+exactly this.
 
 So when a collection is added, renamed or removed:
 
@@ -88,12 +89,14 @@ So when a collection is added, renamed or removed:
 
 | | Shifted Knowledge | Moment Hill |
 |---|---|---|
-| `posts` | yes, `category: Essay \| Note` | yes |
+| `posts` | yes | yes |
 | `pages` | yes | yes, `home.md` carries hero copy |
 | `frameworks` | — | yes, optional buy link |
 | `explainers` | — | yes, `level` drives the filter |
 
-Schemas are Zod in `src/content.config.ts`, loaded with `glob`. **Filename is
+Schemas are Zod in `src/content.config.ts`, loaded with `glob`. Only `.md` is
+accepted; `.mdx` is deliberately excluded because it can execute build-time
+JavaScript. **Filename is
 the slug** — flat, lowercase, hyphenated. Never `my-thing/index.md`; the URL
 would become `/my-thing/index`.
 

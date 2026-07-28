@@ -12,8 +12,8 @@ sites:
     cloudflare_project: shifted-knowledge
     production_branch: main
     output_dir: .infra/sites/shifted-knowledge/dist
-    schema: 2            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
-                         # 1 -> 2 on 2026-07-28: guides collection added, category removed.
+    schema: 3            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
+                         # 2 -> 3 on 2026-07-28: markdown-only, symlinks rejected.
     domain: shiftedknowledge.com          # only www is ATTACHED to the project; the apex resolves
                                           # through a proxied record in the zone, so it has no
                                           # certificate or redirect settings of its own. Works; untidy.
@@ -30,7 +30,8 @@ sites:
                                               # nothing links to it: safe to delete.
     production_branch: main
     output_dir: .infra/sites/moment-hill/dist
-    schema: 1            # must equal sites/moment-hill/CONTENT_SCHEMA
+    schema: 2            # must equal sites/moment-hill/CONTENT_SCHEMA
+                         # 1 -> 2 on 2026-07-28: markdown-only, symlinks rejected.
     node_version: 22     # Cloudflare NODE_VERSION (Option A: npm, Node 22)
     domain: momenthill.com                # apex + www both attached 2026-07-27. Nameservers moved
                                           # Hover -> Cloudflare (alex/donna.ns.cloudflare.com);

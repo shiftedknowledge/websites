@@ -42,7 +42,13 @@ APP="$INFRA_ROOT/sites/$SITE"
 EXPECTED="$(tr -d '[:space:]' < "$APP/CONTENT_SCHEMA")"
 CONTRACT="$CONTENT_ROOT/content-contract.yml"
 [ -f "$CONTRACT" ] || { echo "build-site: content repo has no content-contract.yml" >&2; exit 1; }
+ACTUAL_SITE="$(awk -F: '/^site:/ {gsub(/[[:space:]]/,"",$2); print $2}' "$CONTRACT")"
 ACTUAL="$(awk -F: '/^schema:/ {gsub(/[[:space:]]/,"",$2); print $2}' "$CONTRACT")"
+
+if [ "$ACTUAL_SITE" != "$SITE" ]; then
+  echo "build-site: content contract is for '$ACTUAL_SITE', not '$SITE'." >&2
+  exit 1
+fi
 
 if [ "$ACTUAL" != "$EXPECTED" ]; then
   echo "build-site: content schema $ACTUAL is incompatible with $SITE infrastructure schema $EXPECTED." >&2
@@ -53,6 +59,17 @@ fi
 # 3. Assemble content. Only src/content is ever written. Copy every collection
 #    directory the content repo provides (posts, pages, and any site-specific
 #    ones such as moment-hill's frameworks), so the platform stays site-agnostic.
+CONTENT_DIR="$CONTENT_ROOT/content"
+[ -d "$CONTENT_DIR" ] || { echo "build-site: content repo has no content/ directory" >&2; exit 1; }
+
+# Git can store symlinks. Following one here would let a content checkout read
+# outside content/ during the build, so reject the checkout before touching the
+# app. The content contract is markdown and images made of regular files.
+if find "$CONTENT_DIR" -type l -print -quit | grep -q .; then
+  echo "build-site: symlinks are not allowed anywhere under content/" >&2
+  exit 1
+fi
+
 DEST="$APP/src/content"
 # If a developer ran dev-link.sh, src/content is a symlink into the content repo.
 # Remove the LINK (not its target) before wiping, so we never rm -rf through it
@@ -62,10 +79,9 @@ rm -rf "$DEST"
 mkdir -p "$DEST"
 
 shopt -s nullglob
-for dir in "$CONTENT_ROOT"/content/*/; do
+for dir in "$CONTENT_DIR"/*/; do
   name="$(basename "$dir")"
-  # -L resolves symlinks to real files so nothing escapes the content dir.
-  cp -RL "$dir" "$DEST/$name"
+  cp -R "$dir" "$DEST/$name"
 done
 shopt -u nullglob
 

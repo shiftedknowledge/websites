@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig, fontProviders, svgoOptimizer } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import siteConfig from './src/site.config';
 import rehypeUnwrapImages from 'rehype-unwrap-images';
@@ -19,8 +18,21 @@ import { remarkObsidian } from './src/plugins/remark-obsidian.ts';
 export default defineConfig({
   site: siteConfig.url,
 
+  // `responsiveStyles` does nothing on its own: Astro only applies it when
+  // `layout` is also set. Without it, a markdown image was re-encoded to WebP
+  // at its original pixel size and shipped with an empty srcset, so a phone
+  // downloaded a full-resolution photo to show it in a 700px column.
+  //
+  // `constrained` lets an image shrink but never render above its intrinsic
+  // size, and the capped breakpoint list means the largest variant generated is
+  // 1600px wide however big the source is.
   image: {
+    layout: "constrained",
     responsiveStyles: true,
+    // Top of the list is 1920: the prose column is 640px, so a 3x display asks
+    // for ~1920 and must find a candidate there. Without it the browser jumps
+    // to the untouched original, which is the whole problem being fixed.
+    breakpoints: [320, 480, 640, 768, 1024, 1280, 1600, 1920],
   },
 
   experimental: {
@@ -30,17 +42,6 @@ export default defineConfig({
       enabled: true,
     },
     svgOptimizer: svgoOptimizer(),
-  },
-
-  security: {
-    contentSecurityPolicy: {
-      directives: {
-        "script-src": ["'self'", "https://static.cloudflareinsights.com"],
-        "style-src":  ["'self'", "'unsafe-inline'"],
-        "connect-src":["'self'", "https://cloudflareinsights.com"],
-        "worker-src": ["'self'", "blob:"],
-      },
-    },
   },
 
   // Shifted Knowledge fonts (both Google Fonts, via Fontsource, self-hosted).
@@ -102,10 +103,7 @@ export default defineConfig({
     ]
   },
 
-  integrations: [
-    mdx(), 
-    sitemap()
-  ],
+  integrations: [sitemap()],
 
   build: {
     // Inline small stylesheets into the HTML (~4KB threshold), keep larger

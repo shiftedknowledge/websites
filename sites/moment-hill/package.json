@@ -13,8 +13,7 @@
     "format": "prettier -w \"**/*.{astro,ts,js,css,json}\" --ignore-unknown"
   },
   "dependencies": {
-    "@astrojs/mdx": "6.0.3",
-    "@astrojs/rss": "4.0.18",
+    "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.3",
     "@tailwindcss/typography": "0.5.19",
     "@tailwindcss/vite": "4.3.0",
@@ -32,6 +31,6 @@
     "prettier-plugin-tailwindcss": "^0.8.0"
   },
   "overrides": {
-    "vite": "7.3.3"
+    "vite": "7.3.6"
   }
 }

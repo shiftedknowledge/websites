@@ -13,3 +13,6 @@
 /tags /posts 301
 /tags/ /posts 301
 /tags/* /posts 301
+/search /posts 301
+/search/ /posts 301
+/search/* /posts 301

@@ -12,14 +12,16 @@ with that site's names.
 - Push both repos to GitHub (see the project setup). The infrastructure repo
   (`shiftedknowledge/websites`) must be **public** so the build can clone it without
   credentials.
-- Have the infrastructure commit SHA you want to build against. Get it with:
+- Decide whether this project should follow active development on `main` or be
+  frozen to a specific infrastructure commit SHA. Get the current SHA with:
 
   ```bash
   git -C /Users/jochen/CODE/websites rev-parse HEAD
   ```
 
-  Pin to a **specific commit SHA**, never `main`, so builds are reproducible and
-  infrastructure changes reach the site only when you deliberately bump the pin.
+  Use `main` during active development, matching the current sites. Pin to a
+  **specific commit SHA** when you want a reproducible frozen release that moves
+  only when you deliberately bump it.
 
 ## 1. Create the project and connect the content repo
 
@@ -52,7 +54,7 @@ Set these under the project's **Settings → Environment variables** (Production
 | Variable | Value |
 |----------|-------|
 | `INFRA_REPO` | `https://github.com/shiftedknowledge/websites.git` |
-| `INFRA_REF` | the infrastructure commit **SHA** to build against |
+| `INFRA_REF` | `main` while following active development, or a commit SHA when frozen |
 | `SITE` | `shifted-knowledge` |
 | `NODE_VERSION` | `22` |
 
@@ -63,9 +65,10 @@ a `*.pages.dev` URL.
 
 Once the final domain is known (the `pages.dev` one, or a custom domain), set it in
 `sites/shifted-knowledge/configs/user.config.ts` → `url` and in `sites.yml`, commit,
-push the infrastructure repo, and bump this project's `INFRA_REF` to the new SHA
-(step 3). That `url` drives canonical links, RSS, the sitemap, and share images, so
-it must match the address people actually visit.
+push the infrastructure repo, and trigger a new deployment. If the project is
+frozen to a commit, bump `INFRA_REF` to the new SHA first (step 3). That `url`
+drives canonical links, RSS, the sitemap, and share images, so it must match the
+address people actually visit.
 
 ## Everyday deploys after this
 
@@ -75,7 +78,8 @@ last good deployment stays live.
 
 ## Rolling out an infrastructure change
 
-Infrastructure changes do not deploy themselves. To roll one out to a site: set that
-project's `INFRA_REF` to the new SHA, trigger a deployment, verify it. To roll back,
-restore the previous SHA and redeploy. See `AGENTS.md` → "Releasing an
-infrastructure change".
+Infrastructure changes do not deploy themselves because Cloudflare watches the
+content repo. When `INFRA_REF` is `main`, push the infrastructure change, trigger a
+new deployment and verify it. For a frozen project, set `INFRA_REF` to the new SHA
+first. Roll back by freezing to the previous SHA and redeploying. See `AGENTS.md`
+→ "Releasing an infrastructure change".

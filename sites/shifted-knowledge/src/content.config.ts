@@ -16,7 +16,7 @@ function removeDupsAndLowerCase(array: string[]) {
 // Posts: the timeline. Dated, chronological, and the only collection in the
 // RSS feed. Written once and left alone; `published` is what orders them.
 const postsCollection = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: `./${POSTS_PATH}` }),
+  loader: glob({ pattern: '**/*.md', base: `./${POSTS_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -31,7 +31,7 @@ const postsCollection = defineCollection({
 });
 
 const pagesCollection = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: `./${PAGES_PATH}` }),
+  loader: glob({ pattern: '**/*.md', base: `./${PAGES_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -46,7 +46,7 @@ const pagesCollection = defineCollection({
 // are revised rather than superseded, so `updated` does the ordering and they
 // stay out of the timeline and out of the feed.
 const guidesCollection = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: `./${GUIDES_PATH}` }),
+  loader: glob({ pattern: '**/*.md', base: `./${GUIDES_PATH}` }),
   schema: z.object({
     title: z.string(),
     description: z.string(),

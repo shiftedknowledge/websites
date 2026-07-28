@@ -1,192 +1,87 @@
 /**
- * Image Utilities
+ * Image utilities.
  *
- * Gallery image resolution and cover image resolution for
- * folder-based post structure.
+ * One job: resolve a post or guide's `cover:` frontmatter value to the actual
+ * image file, so Astro can optimise it.
  *
- * Reads from:
- *   src/content/posts/{postDir}/gallery/      — dedicated gallery images
- *   src/content/posts/{postDir}/attachments/  — inline and cover images
+ * Images live beside the entry that uses them, flat:
+ *
+ *   src/content/posts/my-post.md
+ *   src/content/posts/my-post.hero.jpg   ->  cover: ./my-post.hero.jpg
+ *
+ * That is the layout the content repos document. An earlier version of this
+ * file looked images up in a `<post>/attachments/` folder inherited from the
+ * theme this site started as, which the flat layout never creates, so `cover:`
+ * silently resolved to nothing on every entry.
  */
 
 import type { ImageMetadata } from 'astro';
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
-export interface GalleryImage {
-  src: ImageMetadata;
-  alt: string;
-  filename: string;
-}
-
-// ============================================================================
-// GLOBS — static, module-level, Vite requires static patterns
-// ============================================================================
-
-const allGalleryImages = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/content/**/gallery/*.{jpg,jpeg,png,webp,avif,gif,JPG,JPEG,PNG,WEBP}',
+// Static, module-level: Vite requires a literal pattern.
+const contentImages = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/content/**/*.{jpg,jpeg,png,webp,avif,gif,JPG,JPEG,PNG,WEBP}',
   { eager: true }
 );
 
-const allAttachmentImages = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/content/**/attachments/*.{jpg,jpeg,png,webp,avif,gif,JPG,JPEG,PNG,WEBP}',
-  { eager: true }
-);
-
-// ============================================================================
-// UTILITIES
-// ============================================================================
-
 /**
- * Derive post directory name from entry.filePath
- * e.g. src/content/posts/2026-03-rajgad/index.md → 2026-03-rajgad
- */
-export function extractPostDir(filePath: string): string {
-  const parts = filePath.split('/');
-  return parts[parts.length - 2] || '';
-}
-
-/**
- * Derive alt text from image filename
- * e.g. 01-rajgad-summit-view.jpg → Rajgad Summit View
- */
-export function filenameToAlt(filename: string): string {
-  return (
-    filename
-      .replace(/\.[^.]+$/, '')                  // remove extension
-      .replace(/^\d+[-_]?/, '')                 // remove leading number
-      .replace(/[-_]/g, ' ')                    // separators → spaces
-      .replace(/\b\w/g, (c) => c.toUpperCase()) // capitalise words
-      .trim()
-  );
-}
-
-/**
- * Shuffle array — Fisher-Yates
- */
-export function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
-/**
- * Resolve a vault-absolute image path to a glob key.
+ * Strip the wrappers a cover value might arrive in.
  *
- * Handles:
- *   posts/2011-03-21-bhuleshwar/attachments/image.jpg
- *   → /src/content/posts/2011-03-21-bhuleshwar/attachments/image.jpg
+ *   [[my-post.hero.jpg]]        Obsidian wiki-link
+ *   [Label](my-post.hero.jpg)   markdown link
+ *   ./my-post.hero.jpg          relative path
  */
-function vaultPathToGlobKey(vaultPath: string): string {
-  // Already a glob key
-  if (vaultPath.startsWith('/src/content/')) return vaultPath;
-  // Vault-absolute: posts/...
-  if (vaultPath.startsWith('travels/')) return `/src/content/${vaultPath}`;
-  // Fallback
-  return `/src/content/${vaultPath}`;
-}
-
-// ============================================================================
-// COVER IMAGE
-// ============================================================================
-
-/**
- * Resolve a post's cover frontmatter value to ImageMetadata.
- *
- * Accepts vault-absolute Obsidian paths with or without [[ ]] brackets:
- *   [[travels/2011-03-21-bhuleshwar/attachments/image.jpg]]
- *   travels/2011-03-21-bhuleshwar/attachments/image.jpg
- *
- * Returns undefined if the path cannot be resolved (allows graceful fallback).
- */
-// export function getCoverImage(raw: string | undefined): ImageMetadata | undefined {
-//   if (!raw) return undefined;
-
-//   const stripped = stripObsidianBrackets(raw).trim();
-//   if (!stripped) return undefined;
-
-//   const globKey = vaultPathToGlobKey(stripped);
-
-//   const mod = allAttachmentImages[globKey];
-//   return mod?.default;
-// }
-
-export function normalizeCoverPath(
-  raw: string | undefined
-): string | undefined {
-
-  if (!raw) return undefined;
-
+function normaliseCoverValue(raw: string): string {
   const value = raw.trim();
 
-  // Obsidian wiki-link
-  // [[image.jpg]]
-
   const obsidian = value.match(/^\[\[(.+?)\]\]$/);
-
-  if (obsidian) {
-    return obsidian[1].trim();
-  }
-
-  // Markdown link
-  // [Label](path/image.jpg)
+  if (obsidian) return obsidian[1].trim();
 
   const markdown = value.match(/^\[.*?\]\((.+?)\)$/);
-
-  if (markdown) {
-    return markdown[1].trim();
-  }
-
-  // Raw path fallback
+  if (markdown) return markdown[1].trim();
 
   return value;
 }
 
+/**
+ * Resolve `cover:` to ImageMetadata, or undefined if it cannot be found.
+ *
+ * Undefined is not an error: an entry without a usable cover falls back to the
+ * generated OG card, which is why `cover` is optional.
+ *
+ * @param raw       the frontmatter value
+ * @param filePath  the entry's own path, e.g. "src/content/posts/my-post.md"
+ */
 export function getCoverImage(
-  raw: string | undefined
+  raw: string | undefined,
+  filePath: string | undefined
 ): ImageMetadata | undefined {
+  if (!raw || !filePath) return undefined;
 
-  const normalized = normalizeCoverPath(raw);
+  const value = normaliseCoverValue(raw);
+  if (!value) return undefined;
 
-  if (!normalized) return undefined;
-  const globKey = vaultPathToGlobKey(normalized);
-  const mod = allAttachmentImages[globKey];
-  return mod?.default;
-}
+  // A remote image is passed through untouched elsewhere; nothing to resolve.
+  if (/^https?:\/\//.test(value)) return undefined;
 
-// ============================================================================
-// GALLERY
-// ============================================================================
+  const relative = value.replace(/^\.\//, '');
 
-/**
- * Get gallery images for a post, sorted by filename.
- * Reads from src/content/travels/{postDir}/gallery/
- */
-export function getGalleryImages(filePath: string): GalleryImage[] {
-  const postDir = extractPostDir(filePath);
-  if (!postDir) return [];
+  // The entry's own directory, as a glob key: "src/content/posts/x.md"
+  // becomes "/src/content/posts".
+  const entryDir = `/${filePath.replace(/^\/+/, '').replace(/\/[^/]+$/, '')}`;
 
-  return Object.entries(allGalleryImages)
-    .filter(([path]) => path.includes(`/posts/${postDir}/gallery/`))
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([path, mod]) => {
-      const filename = path.split('/').pop() ?? '';
-      return {
-        src: mod.default,
-        alt: filenameToAlt(filename),
-        filename,
-      };
-    });
-}
+  const candidates = [
+    // Beside the entry — the documented layout.
+    `${entryDir}/${relative}`,
+    // Content-root-relative, e.g. "posts/my-post.hero.jpg".
+    `/src/content/${relative}`,
+    // Already a full glob key.
+    relative.startsWith('/src/content/') ? relative : null,
+  ].filter(Boolean) as string[];
 
-/**
- * Check if a post has a gallery — use for conditional rendering decisions.
- */
-export function hasGallery(filePath: string): boolean {
-  return getGalleryImages(filePath).length > 0;
+  for (const key of candidates) {
+    const mod = contentImages[key];
+    if (mod) return mod.default;
+  }
+
+  return undefined;
 }

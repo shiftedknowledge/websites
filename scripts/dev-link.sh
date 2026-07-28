@@ -26,6 +26,13 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 APP="$INFRA_ROOT/sites/$SITE"
+
+case "$SITE" in
+  shifted-knowledge) ;;
+  moment-hill) ;;
+  *) echo "dev-link: unknown site '$SITE'" >&2; exit 1 ;;
+esac
+
 [ -d "$APP" ] || { echo "dev-link: no app at $APP" >&2; exit 1; }
 
 CONTENT_DIR="$(cd "$CONTENT_REPO" && pwd)/content"

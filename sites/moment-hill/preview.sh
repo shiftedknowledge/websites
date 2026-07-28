@@ -20,7 +20,7 @@ case "$mode" in
   final)
     echo "Building the exact production site (this takes a few seconds)…"
     npm run build
-    echo "Starting production preview (drafts hidden, search + images included)…"
+    echo "Starting production preview (drafts hidden, images optimised)…"
     npm run preview -- --host >/tmp/mh-preview.log 2>&1 &
     SRV=$!
     ;;

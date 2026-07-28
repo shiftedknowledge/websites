@@ -92,6 +92,13 @@ function addImageAttributes(tree: Root) {
     // avoids forcing high-res decode on images that may be off-screen
     props.loading = props.loading || 'lazy';
     props.decoding = props.decoding || 'async';
+
+    // Astro assumes a markdown image fills the viewport and emits
+    // sizes="100vw", so a retina display picks the largest srcset candidate —
+    // which is the untouched original. The prose column is max-w-2xl (42rem)
+    // less 2.5rem of padding, so tell the browser the truth and let it pick a
+    // candidate that matches.
+    props.sizes = props.sizes || '(min-width: 42rem) 39.5rem, calc(100vw - 2.5rem)';
   });
 }
 

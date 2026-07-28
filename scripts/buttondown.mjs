@@ -53,7 +53,7 @@ function apiKey() {
       "BUTTONDOWN_API_KEY is empty.\n" +
         "Create a key at buttondown.com > Settings > API > Keys, pinned to API\n" +
         "version 2026-04-01, with Emails=Read & write, Subscribers=Read,\n" +
-        "Styling=Read & write, Sending=Disabled, everything else None.\n" +
+        "Sending=Write, Styling=Read & write, everything else None.\n" +
         "Then paste it into ~/.env. See docs/newsletter.md.",
     );
   }
@@ -177,11 +177,13 @@ async function cmdWhoami() {
   }
 }
 
-async function cmdSubscribers() {
+async function cmdSubscribers(args) {
   const data = await api("/subscribers?type=regular");
   console.log(`${data.count} confirmed subscriber(s).`);
-  for (const s of (data.results ?? []).slice(0, 25)) {
-    console.log(`  ${s.email_address ?? s.email}  (${s.type})`);
+  if (args.includes("--details")) {
+    for (const s of (data.results ?? []).slice(0, 25)) {
+      console.log(`  ${s.email_address ?? s.email}  (${s.type})`);
+    }
   }
 }
 
@@ -209,9 +211,9 @@ async function cmdPush(file) {
 
   if (!data.subject) die(`${basename(file)} has no \`subject\` in its frontmatter.`);
   if (!body.trim()) die(`${basename(file)} has no body.`);
-  if (data.status && data.status !== "ready") {
+  if (data.status !== "ready") {
     die(
-      `${basename(file)} is \`status: ${data.status}\`. Only \`ready\` gets pushed.\n` +
+      `${basename(file)} is \`status: ${data.status ?? "missing"}\`. Only \`ready\` gets pushed.\n` +
         "That field is the editorial gate — set it when you have signed the issue off.",
     );
   }
@@ -383,6 +385,18 @@ async function cmdSend(id, args) {
     );
   }
 
+  // This route is contested; read before changing it.
+  //
+  // The 2026-07-28 audit read Buttondown's docs as saying /send-draft only
+  // mails preview copies, and proposed PATCH {status: "about_to_send"} instead.
+  // The account says otherwise: the one issue ever sent from here reports
+  // 5 recipients, 5 deliveries and 1 unsubscription, and this code was already
+  // committed three hours before that send. So this path demonstrably delivers
+  // to the list, and the replacement has never been run against the live API.
+  //
+  // Keeping the mechanism with delivery evidence. If you switch to the status
+  // transition, prove it first with test mode ON.
+  //
   // The empty object is load-bearing. send-draft requires a JSON body; with no
   // body at all it 422s with "field required: payload". The body IS the
   // payload, so an empty object means "send with defaults" — a nested
@@ -402,7 +416,7 @@ const [cmd, ...args] = process.argv.slice(2);
 
 const commands = {
   whoami: () => cmdWhoami(),
-  subscribers: () => cmdSubscribers(),
+  subscribers: () => cmdSubscribers(args),
   list: () => cmdList(args),
   show: () => cmdShow(args[0]),
   push: () => cmdPush(args[0]),
@@ -415,7 +429,7 @@ if (!commands[cmd]) {
   console.error(
     "usage: buttondown.mjs <command>\n\n" +
       "  whoami                 verify the key, print the real newsletter username\n" +
-      "  subscribers            confirmed subscriber count\n" +
+      "  subscribers [--details] confirmed subscriber count (and optional addresses)\n" +
       "  list [--status draft]  emails, newest first\n" +
       "  show <id>              full JSON for one email\n" +
       "  push <file.md>         create/update a DRAFT from a markdown file\n" +

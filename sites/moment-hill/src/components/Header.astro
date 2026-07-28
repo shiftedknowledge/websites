@@ -11,11 +11,18 @@ const isActive = (url: string) =>
 <header class="border-b border-border bg-background">
   <div class="wrap flex min-h-16 items-center justify-between py-3">
     <a href="/" class="flex items-center" aria-label={`${siteConfig.title}, home`}>
+      {/*
+        The source is 5342px wide and this renders at ~229px (h-8, aspect 7.16).
+        Declaring the source dimensions made Astro advertise sizes="…100vw", so
+        a retina browser fetched a near-full-size logo on every page. 716px is
+        3x the largest rendered width, which is as much as any display needs.
+      */}
       <Image
         src={logoHorizontal}
         alt="Moment Hill"
-        width={5342}
-        height={746}
+        width={716}
+        height={100}
+        sizes="229px"
         class="h-7 w-auto sm:h-8"
       />
     </a>
