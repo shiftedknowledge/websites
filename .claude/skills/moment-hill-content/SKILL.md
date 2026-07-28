@@ -68,9 +68,14 @@ future `published` date does the same. Removing the flag and pushing is the
 entire publish action — Cloudflare rebuilds on the push and it is live in a
 minute or two.
 
-**Currently hidden behind `draft: true`:** the Porter's Five Forces post and the
-matching framework. Both were pulled before the site went live and are waiting
-on a decision, not on a fix.
+**To see what is currently hidden, ask the repo — do not trust a list in here:**
+
+```bash
+grep -rl '^draft: true' ../website-content/moment-hill/content/
+```
+
+Entries are hidden because a decision is pending, not because they are broken.
+Do not unhide one to "fix" it.
 
 Order: if the change also needs an infra change, **push infra first, then
 content**. The content push is what triggers the build.

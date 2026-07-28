@@ -217,24 +217,23 @@ note exists so the decision is visible rather than implied by silence.
 
 The repo split *is* the boundary, which is why it holds.
 
-**Jochen owns** the words and the look: everything in the content repos, plus
-`configs/user.config.ts`, `src/styles/`, layouts and components in this one. And
-every decision about what goes live and when.
+**The canonical statement of the boundary is the "Who owns what" section of
+[`../AGENTS.md`](../AGENTS.md).** It is not restated here, because two copies
+drift. The summary below is orientation only; where they disagree, `AGENTS.md`
+wins.
 
-**Agents own** everything that is neither words nor look: Cloudflare
+Jochen owns the words and the look — the content repos, `configs/user.config.ts`,
+`src/styles/`, the visual behaviour of layouts and components, and every decision
+about what goes live and when. Agents own everything else: Cloudflare
 configuration, triggering and triaging builds, drift between `sites.yml` and
 reality, domain and TLS health, dependency and Astro upgrades, the content
 schema contract, and the whole newsletter pipeline downstream of a finished
 issue.
 
-Two standing rules that fall out of that:
-
-- **Never write prose into a content repo unless asked to.** Fixing broken
-  frontmatter is maintenance. Writing a paragraph is not. See
-  [`writing-workflow.md`](writing-workflow.md) — the constraint is stronger than
-  it looks and it is the point of the whole arrangement.
-- **Never trigger a production deploy or change a domain without saying so
-  first.** Everything short of that needs no permission.
+The three standing rules — no unrequested prose, no unrequested design change,
+no unannounced production deploy or domain change — are stated in full in
+[`../AGENTS.md`](../AGENTS.md), with the reasoning for the first in
+[`writing-workflow.md`](writing-workflow.md).
 
 ## The newsletter, in one paragraph
 

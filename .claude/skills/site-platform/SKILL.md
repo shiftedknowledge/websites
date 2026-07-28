@@ -130,7 +130,10 @@ Biome. Moment Hill has neither Biome nor OG image generation.
    unknown names by design — never make that lookup dynamic.
 3. Add its row to `sites.yml`.
 4. Create the private content repo with `content-contract.yml`, `AGENTS.md`,
-   `README.md`, scaffold scripts, and a `content/` tree.
+   a `CLAUDE.md` pointing at it, `README.md`, scaffold scripts, and a `content/`
+   tree. Copy the *Before you touch anything* block from an existing content
+   repo's `AGENTS.md` verbatim — safety cannot depend on an agent having started
+   in the right checkout.
 5. Create the Cloudflare Pages project against the **content** repo, per
    [`CLOUDFLARE_SETUP.md`](../../../CLOUDFLARE_SETUP.md).
 6. If it needs a newsletter, add a `newsletter` block to its `user.config.ts`
@@ -138,12 +141,20 @@ Biome. Moment Hill has neither Biome nor OG image generation.
 
 ## Boundaries
 
-**Do not edit** without being asked: anything in a content repo's `content/`,
-`configs/user.config.ts`, `src/styles/`. Those are Jochen's — words and look.
-See [`docs/writing-workflow.md`](../../../docs/writing-workflow.md).
+**The boundary is defined in [`AGENTS.md`](../../../AGENTS.md), "Who owns what".**
+Read it there; it is not restated here. In short, for this repo:
 
-**Do freely:** layouts, components, utils, build scripts, config, dependencies,
-diagnosis of any of the above.
+**Never without being asked:** anything in a content repo's `content/`,
+`configs/user.config.ts`, `src/styles/`, and any change to the *visual design* of
+layouts and components — including refactors, tidying, and extracting something
+shared because both sites have one like it. Bespoke design is the point.
+Wanting to improve it is not permission to. See also
+[`docs/writing-workflow.md`](../../../docs/writing-workflow.md).
+
+**Freely:** reading and diagnosing anything; utils, build scripts, config,
+dependencies; implementing a design change that was actually requested; and
+fixing what is broken — build errors, type failures, broken links, wrong
+frontmatter. Maintenance needs no permission; improvement does.
 
 **Conventions:** British English, no em dashes, no emojis in site-visible copy.
 This repo is public and holds no secrets.

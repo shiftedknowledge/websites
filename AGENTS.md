@@ -45,6 +45,7 @@ together inside a throwaway build, every time a site is built.
 ```
 websites/
 ├── AGENTS.md              this file
+├── CLAUDE.md              a pointer to this file, for runtimes that load it
 ├── sites.yml             deployment manifest (desired Cloudflare state, in git)
 ├── docs/design-spec.md   the full design rationale
 ├── scripts/
@@ -132,7 +133,10 @@ restoring the previous SHA and redeploying. Do this per site, one at a time.
 2. Add it to the `case` allowlist in `scripts/build-site.sh`.
 3. Add its row to `sites.yml`.
 4. Create the private content repo `shiftedknowledge/<new-site>-content` with a
-   `content-contract.yml`, an `AGENTS.md`, and a `content/` tree.
+   `content-contract.yml`, an `AGENTS.md`, a `CLAUDE.md` pointing at it, and a
+   `content/` tree. Copy the *Before you touch anything* block from an existing
+   content repo's `AGENTS.md` verbatim. That duplication is deliberate: safety
+   cannot depend on an agent having started in the right checkout.
 5. Create the Cloudflare Pages project against the content repo and follow
    `CLOUDFLARE_SETUP.md`.
 
@@ -159,15 +163,25 @@ The API key lives in `~/.env`, never here.
 The repo split *is* the boundary, which is why it holds.
 
 **Jochen owns** the words and the look: everything in the content repos, plus
-`configs/user.config.ts` and `src/styles/` here. And every decision about what
-goes live and when.
+`configs/user.config.ts`, `src/styles/`, and the visual behaviour of layouts and
+components here. And every decision about what goes live and when.
 
 **Agents own** everything that is neither words nor look: Cloudflare
 configuration, triggering and triaging builds, drift between `sites.yml` and
 reality, domain and TLS health, dependency and Astro upgrades, the schema
 contract, and the newsletter pipeline downstream of a finished issue.
 
-Two rules fall out of that:
+**Layouts and components are the one shared surface, so the rule is about intent,
+not about files.** An agent may read them freely, diagnose them freely, and
+implement a design change that was asked for. An agent may not change visual
+design, markup, styling or configuration because it judges the result an
+improvement. Refactors, "tidying", accessibility rewrites, extracting a shared
+component: all of those are requests to make, not changes to make. Fixing a
+build error, a broken link or a type failure is maintenance and needs no
+permission. **This paragraph is canonical**; `docs/platform.md` and the
+`site-platform` skill defer to it rather than restating it.
+
+Two further rules fall out of that:
 
 - **Do not write prose into a content repo unless asked.** Fixing broken
   frontmatter is maintenance. Writing a paragraph is not. The constraint is

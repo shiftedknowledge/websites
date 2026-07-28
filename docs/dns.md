@@ -72,6 +72,38 @@ to the same IP, and that IP is inside `52.100.0.0/15` in Microsoft's SPF. The
 test that matters passes. Nobody here owns that IP, that host or that reverse
 zone, so the "fix" mail testers suggest is impossible. Do not chase it.
 
+### The newsletter subdomain — delegated away
+
+`newsletter.momenthill.com` is **delegated to Buttondown** and this zone holds
+only the two `NS` records that hand it over. Added 2026-07-28:
+
+| Type | Host | Value | Proxy |
+|---|---|---|---|
+| NS | `newsletter` | `ns1.onbuttondown.com` | n/a |
+| NS | `newsletter` | `ns2.onbuttondown.com` | n/a |
+
+Everything inside that subdomain — DKIM, an MX to `inbound.postmarkapp.com`, a
+`pm-bounces` CNAME, a click-tracking CNAME and its own `DMARC p=quarantine` —
+is created and rotated by Buttondown, not here. Editing those in Cloudflare
+would achieve nothing; the delegation means Cloudflare no longer answers for
+that name. Buttondown runs on Postmark underneath, which is why the records
+point there.
+
+**A subdomain, not the root, on purpose.** The newsletter sends as
+`jochen@newsletter.momenthill.com`, so bulk-mail reputation stays separate from
+the domain carrying client email on Microsoft 365. It also means the root SPF
+record was never touched — Buttondown aligns SPF on `pm-bounces` inside its own
+subdomain instead.
+
+To check the delegation, query the **authority** section: a delegated subdomain
+answers as a referral, so `dig +short NS` against the parent looks empty and
+proves nothing.
+
+```bash
+dig @alex.ns.cloudflare.com NS newsletter.momenthill.com +noall +authority
+dig +short @ns1.onbuttondown.com TXT _dmarc.newsletter.momenthill.com
+```
+
 ### Web
 
 `@` and `www` both resolve to Cloudflare (`104.21.89.241`, `172.67.192.26` and

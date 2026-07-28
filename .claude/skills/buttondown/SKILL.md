@@ -128,9 +128,17 @@ measured and senior.
 
 - The API rejects a body starting with `---`, reading it as stray frontmatter.
   The CLI strips ours already; if you ever call the API directly, strip it too.
-- Publishing a signed-off draft is `PATCH /emails/{id}` with
-  `status: about_to_send`. `POST /emails/{id}/send-draft` only sends preview
-  copies to selected recipients; it does not publish to the newsletter list.
+- **How publishing works is contested. Do not "fix" the CLI to match a doc.**
+  The CLI publishes with `POST /emails/{id}/send-draft` and an empty JSON body
+  (with none it 422s "field required: payload"; the body *is* the payload).
+  The 2026-07-28 audit read Buttondown's documentation as saying that route only
+  mails preview copies, and proposed `PATCH /emails/{id}` with
+  `status: about_to_send` instead. The account contradicts that reading: the one
+  issue ever sent reports 5 recipients, 5 deliveries and 1 unsubscription, and
+  the `send-draft` code was committed three hours before it went out. The
+  mechanism with delivery evidence is the one in the CLI. Before changing it,
+  turn **test mode on**, send a throwaway draft with the replacement, and
+  confirm it arrives. See `docs/newsletter.md`.
 - **Test mode is OFF** (`test_mode: false`, 2026-07-27). Every send reaches the
   real list. There is no harmless "test" send any more. When it was on, a send
   went to the account address only and left the email a draft; that behaviour no
