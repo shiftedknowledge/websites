@@ -109,5 +109,17 @@ export async function GET(context: APIContext) {
     description: siteConfig.description,
     site,
     items,
+    // The channel image. NetNewsWire reads this first and only falls back to
+    // downloading the home page and hunting for apple-touch-icon, twitter:image
+    // or og:image if it is missing — which is guesswork, and this site's
+    // og:image is a 1200x630 bridge photograph, not a square mark. Point it at
+    // the favicon, which is square and is the logo.
+    customData: [
+      "<image>",
+      `<url>${origin}/favicon.png</url>`,
+      `<title>${siteConfig.title}</title>`,
+      `<link>${origin}/</link>`,
+      "</image>",
+    ].join(""),
   });
 }
