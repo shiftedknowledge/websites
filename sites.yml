@@ -12,7 +12,8 @@ sites:
     cloudflare_project: shifted-knowledge
     production_branch: main
     output_dir: .infra/sites/shifted-knowledge/dist
-    schema: 1            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
+    schema: 2            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
+                         # 1 -> 2 on 2026-07-28: guides collection added, category removed.
     domain: shiftedknowledge.com          # only www is ATTACHED to the project; the apex resolves
                                           # through a proxied record in the zone, so it has no
                                           # certificate or redirect settings of its own. Works; untidy.

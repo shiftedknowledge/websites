@@ -10,7 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "lint": "biome lint .",
-    "format": "pnpm run format:code && pnpm run format:imports",
+    "format": "npm run format:code && npm run format:imports",
     "format:code": "biome format . --write && prettier -w \"**/*\" \"!**/*.{md,mdx}\" --ignore-unknown --cache",
     "format:imports": "biome check --formatter-enabled=false --write",
     "astro": "astro"

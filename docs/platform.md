@@ -98,6 +98,15 @@ reaches a site only on the next content push or a manual retry. See the
 
 Account `44dc43bb4dbf488aa6034ef4fd9f3714`. Free plan throughout.
 
+**Everything in this section was read back from Cloudflare on 2026-07-28** with
+`wrangler pages project list` and `wrangler pages download config <project>`, so
+it can be trusted without opening the dashboard. Reproduce it with:
+
+```bash
+npx wrangler pages project list
+npx wrangler pages download config shifted-knowledge   # run in a scratch dir
+```
+
 | Pages project | Git | Domains |
 |---|---|---|
 | `shifted-knowledge` | yes | `shifted-knowledge.pages.dev`, `www.shiftedknowledge.com` |
@@ -106,6 +115,36 @@ Account `44dc43bb4dbf488aa6034ef4fd9f3714`. Free plan throughout.
 
 `moment-hill-preview` is a superseded direct-upload project from before Moment
 Hill was git-connected. It serves nothing anyone links to and can be deleted.
+
+### Build configuration, per project
+
+Identical for both git-connected projects apart from `SITE` and the output path.
+The build command set in the dashboard is:
+
+```bash
+git init .infra \
+  && git -C .infra remote add origin "$INFRA_REPO" \
+  && git -C .infra fetch --depth 1 origin "$INFRA_REF" \
+  && git -C .infra checkout --detach FETCH_HEAD \
+  && .infra/scripts/build-site.sh "$SITE" "$PWD"
+```
+
+| | `shifted-knowledge` | `moment-hill` |
+|---|---|---|
+| output dir | `.infra/sites/shifted-knowledge/dist` | `.infra/sites/moment-hill/dist` |
+| compatibility date | `2026-07-23` | `2026-07-27` |
+| `INFRA_REPO` | `https://github.com/shiftedknowledge/websites.git` | same |
+| `SITE` | `shifted-knowledge` | `moment-hill` |
+| `NODE_VERSION` | `22` | `22` |
+| `INFRA_REF` (production) | `main` | `main` |
+| `INFRA_REF` (preview) | `74d8fb08d7c5…` **pinned, stale** | `main` |
+
+There are **no secrets in any Cloudflare environment variable.** The four vars
+above are the complete set for both projects, in both environments.
+
+The stale preview pin on `shifted-knowledge` is the one known drift. Production
+is unaffected; a preview branch build would use infra from the first platform
+commit. Nothing uses preview branches today.
 
 Both zones are on Cloudflare DNS. Both domains stay registered at Hover;
 only DNS moved. DNSSEC is off on both.
@@ -135,6 +174,46 @@ today. Minting a scoped token is a decision Jochen has not taken.
 
 `BUTTONDOWN_API_KEY` and `BUTTONDOWN_NEWSLETTER` are in `~/.env` and used only by
 [`scripts/buttondown.mjs`](../scripts/buttondown.mjs).
+
+Both repos and both content repos were scanned for committed credentials across
+their **full git history** on 2026-07-28 (API-key prefixes, private-key headers,
+AWS/Slack/GitHub token shapes). Nothing found.
+
+## Dependencies and what the advisories mean here
+
+`npm audit` is noisy on this project and the noise is mostly structural, so the
+current state is recorded rather than left for each reader to re-derive. As of
+**2026-07-28**:
+
+| | high | moderate | low |
+|---|---|---|---|
+| `shifted-knowledge` | 6 | 2 | 1 |
+| `moment-hill` | 3 | 4 | 1 |
+
+The high-severity advisories are `astro`, `sharp`, `vite`, `postcss`, `js-yaml`
+and `svgo`. **Read where each one actually runs before treating it as exposure:**
+
+- `vite` (`server.fs.deny` bypass, `launch-editor` NTLM disclosure) — **dev
+  server only, and Windows-specific.** Never runs in production; the build hosts
+  are Linux and the author's machine is macOS.
+- `postcss`, `js-yaml`, `svgo`, `sharp`/libvips — **build-time only.** They
+  process this project's own CSS, frontmatter, SVGs and images, inside a
+  throwaway Cloudflare build container, from private repos. There is no
+  attacker-supplied input anywhere in that path.
+- `astro` (three XSS advisories, view transitions and spread attributes) — the
+  only class that touches **published output**. Both sites use `ClientRouter`,
+  so the view-transition advisory is in-scope in principle. In practice the
+  vector needs attacker-controlled values reaching those directives, and every
+  byte of content is authored by one person in a private repo. Real risk today:
+  low. Real risk if these sites ever accept third-party input: not low.
+
+The fix for the `astro` and `sharp` advisories is **Astro 7**, a major version
+bump on two bespoke apps. That is a deliberate piece of work, not a patch, and
+it has not been done. `postcss`, `js-yaml`, `svgo` and `vite` have non-breaking
+fixes available and are simply pending.
+
+Nothing here is an emergency. Nothing here should be dismissed either — this
+note exists so the decision is visible rather than implied by silence.
 
 ## Who owns what
 
@@ -179,7 +258,15 @@ Recorded so they are not rediscovered as surprises.
   are inert while the nameservers point at Cloudflare, and they are the rollback
   path for mail.
 - Squarespace is still being paid for.
-- Moment Hill has no site search. Fine for its size; a decision, not a gap.
+- Neither site has search. Fine at this size; a decision, not a gap.
+- **Moment Hill has no Content-Security-Policy; Shifted Knowledge has one.** Not
+  an oversight to fix blindly: Moment Hill's newsletter signup is a native form
+  POST to `buttondown.com`, and a careless `form-action` or `connect-src` policy
+  would silently break the one conversion path on the site. Worth doing, worth
+  doing carefully.
+- **Astro 7 is available and would clear the `astro` and `sharp` advisories.**
+  A major bump across two bespoke apps; see "Dependencies" above for why it is
+  not urgent and not ignorable.
 - Shifted Knowledge's RSS feed renders each post with Astro's container API and
   registers **no renderers**, because `@astrojs/mdx` 6.0.3's container renderer
   fails to bundle (an unresolved `satteri` import). Every post is plain markdown
@@ -188,5 +275,10 @@ Recorded so they are not rediscovered as surprises.
 - `shifted-knowledge`'s **preview** `INFRA_REF` is pinned to the first platform
   commit while production tracks `main`. Harmless while no preview branches
   exist.
+- **There are no automated tests and no type-check step.** `@astrojs/check` is
+  not installed in either app. The only gate on a change is that
+  `scripts/build-site.sh` exits clean, which catches schema and syntax errors
+  and nothing else. For a static site with two content collections this is a
+  defensible trade; it is still the largest single gap in the setup.
 - Nothing watches any of this. A broken build, an expired certificate or a site
   that stops resolving would be noticed by someone visiting it.

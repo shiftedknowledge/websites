@@ -3,6 +3,14 @@
 Both zones as they are today. Enumerated with `dig` against the live
 nameservers on 2026-07-27, not copied off a dashboard.
 
+**Re-verified 2026-07-28.** Every mail record in both tables below was queried
+against `alex.ns.cloudflare.com` and matched exactly, including the three
+momenthill.com records that must stay "DNS only" (they resolve to their real
+targets, not to Cloudflare addresses, which is what proves they are unproxied).
+A deliberate canary query for a hostname that does not exist returned empty, so
+the run was not a rate-limited false pass. Reproduce it with the commands under
+"Working on a zone".
+
 **Both domains are registered at Hover and served by Cloudflare DNS.** Only DNS
 moved; registration stays at Hover deliberately, so the domains can be taken
 anywhere. Nameservers are `alex.ns.cloudflare.com` and
