@@ -2,6 +2,9 @@
 import { Font } from 'astro:assets';
 import { ClientRouter } from "astro:transitions";
 import "@/styles/global.css";
+// Bundled, not linked: a bare <link href="/src/…"> resolves in dev and 404s in
+// the build, which left the search UI unstyled in production.
+import "@/styles/pagefind.css";
 
 interface Props {
   lang?: string;
@@ -52,8 +55,6 @@ const { lang = "en", schema } = Astro.props;
     href="/pagefind/pagefind-component-ui.css"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="/src/styles/pagefind.css" />
-  
   <script
     src="/pagefind/pagefind-component-ui.js"
     type="module"

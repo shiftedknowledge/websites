@@ -1,20 +1,23 @@
 ---
-import { getPostUrl, type Post } from "@/utils/content";
+import { getPostUrl, type Post, type Guide } from "@/utils/content";
 import { slugify } from "@/utils/text";
 
 type Props = {
   tag?: 'h1' | 'h2';
-  post: Post;
+  post: Post | Guide;
+  /** Override the link target. Guides pass their own; posts fall back to /posts/…. */
+  href?: string;
   class?: string;
 };
 
 const {
   tag: Heading = "h2",
   post,
+  href,
   class: className = "",
 } = Astro.props;
 
-const url = getPostUrl(post.id, post.filePath);
+const url = href ?? getPostUrl(post.id, post.filePath);
 const titleSlug = slugify(post.data.title.replaceAll(".", "-"));
 const titleClass = [ "text-balance", className,]
   .filter(Boolean)

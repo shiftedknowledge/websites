@@ -13,7 +13,7 @@ const allPosts = await getAllPosts();
 const structuredData = generateWebsiteSchema();
 ---
 <BaseLayout schema={structuredData}>
-	<SEO slot="seo" title="Home" description={siteConfig.description} ogImage="/og/default.png" />
+	<SEO slot="seo" title="Home" description={siteConfig.description} ogImage="/og.png" />
 	<h1 class="sr-only">{siteConfig.title}</h1>
 	
 	<HomeHero />

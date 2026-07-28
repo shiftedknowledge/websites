@@ -1,27 +1,26 @@
 // src/pages/og.png.ts
+//
+// The site-wide share card, used by any page without one of its own.
 
 import type {
   APIRoute,
 } from "astro";
+
+import siteConfig from "@/site.config";
 
 import {
   generateOgImage,
 } from "@/utils/og";
 
 export const GET: APIRoute =
-  async (context) => {
+  async () => {
     const png =
       await generateOgImage(
         {
-          title: "Lipi",
+          title: siteConfig.title,
 
           description:
-            "A minimal editorial theme for Astro focused on typography, chronology, and longform publishing.",
-
-          category:
-            "Astro Theme",
-
-          site: "https://astro-lipi.pages.dev",
+            siteConfig.description,
         }
       );
 

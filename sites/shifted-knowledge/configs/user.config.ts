@@ -19,13 +19,12 @@ const userConfig: UserConfig = {
 
   navigation: [
     { title: "Posts", url: "/posts" },
-    { title: "Archive", url: "/archive" },
+    { title: "Guides", url: "/guides" },
     { title: "About", url: "/about" },
   ],
 
   footerLinks: [
     { title: "RSS", url: "/rss.xml" },
-    { title: "Archive", url: "/archive" },
   ],
 
   social: [

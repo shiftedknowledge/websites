@@ -1,0 +1,33 @@
+---
+import { render } from "astro:content";
+import PostLayout from "@/layouts/PostLayout.astro";
+import { type Guide, getAllGuides, getGuideSlug } from "@/utils/content";
+
+export const getStaticPaths = async () => {
+  const guides = await getAllGuides();
+
+  return guides.map((guide) => ({
+    params: {
+      slug: getGuideSlug(
+        guide.id,
+        guide.filePath
+      ),
+    },
+
+    props: {
+      guide,
+    },
+  }));
+};
+
+type Props = {
+  guide: Guide;
+};
+
+const { guide } = Astro.props;
+
+const { Content } = await render(guide);
+---
+<PostLayout post={guide}>
+  <Content />
+</PostLayout>

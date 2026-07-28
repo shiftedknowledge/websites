@@ -1,34 +1,32 @@
 import { getCollection, type CollectionEntry, } from "astro:content";
 import { getAssetPath } from "./url";
 import { slugify } from "./text";
-import siteConfig from "@/site.config";
-import {POSTS_PATH, PAGES_PATH} from "@/content.config";
+import {POSTS_PATH, PAGES_PATH, GUIDES_PATH} from "@/content.config";
 
 export type Post = CollectionEntry<"posts">;
 export type Page = CollectionEntry<"pages">;
-export type TagArchive = {
-  tag: string;
-  slug: string;
-  count: number;
-  posts: Post[];
-};
+export type Guide = CollectionEntry<"guides">;
 
 let postsCache: Post[] | null = null;
 let pagesCache: Page[] | null = null;
+let guidesCache: Guide[] | null = null;
 
-function isVisiblePost(post: Post): boolean {
+// Posts and guides share the same draft and publish-date rules.
+type Dated = Post | Guide;
+
+function isVisibleEntry(entry: Dated): boolean {
   // Show everything in development
   if (import.meta.env.DEV) {
     return true;
   }
 
-  const isDraft = post.data.draft;
+  const isDraft = entry.data.draft;
 
-  const isFuturePost =
-    new Date(post.data.published).getTime() >
+  const isFuture =
+    new Date(entry.data.published).getTime() >
     Date.now();
 
-  return !isDraft && !isFuturePost;
+  return !isDraft && !isFuture;
 }
 
 function isVisiblePage(page: Page): boolean {
@@ -44,8 +42,8 @@ function isPublicPage(page: Page): boolean {
   return page.id !== "home-intro";
 }
 
-function sortPosts(posts: Post[]): Post[] {
-  return posts.sort((a, b) => {
+function sortByDate<T extends Dated>(entries: T[]): T[] {
+  return entries.sort((a, b) => {
     const aDate = new Date(
       a.data.updated ?? a.data.published
     ).getTime();
@@ -65,12 +63,31 @@ export async function getAllPosts(): Promise<Post[]> {
 
   const posts = await getCollection(
     "posts",
-    isVisiblePost
+    isVisibleEntry
   );
 
-  postsCache = sortPosts(posts);
+  postsCache = sortByDate(posts);
 
   return postsCache;
+}
+
+/**
+ * Guides, most recently revised first. Deliberately not part of the timeline:
+ * they are excluded from /posts, the home page, and the RSS feed.
+ */
+export async function getAllGuides(): Promise<Guide[]> {
+  if (guidesCache) {
+    return guidesCache;
+  }
+
+  const guides = await getCollection(
+    "guides",
+    isVisibleEntry
+  );
+
+  guidesCache = sortByDate(guides);
+
+  return guidesCache;
 }
 
 export async function getAllPages(): Promise<Page[]> {
@@ -90,54 +107,18 @@ export async function getAllPages(): Promise<Page[]> {
   return pagesCache;
 }
 
-export async function getAllTagArchives(): Promise<TagArchive[]> {
-  const posts = await getAllPosts();
-  const archives = new Map<
-    string,
-    {
-      tag: string;
-      slug: string;
-      posts: Post[];
-      postIds: Set<string>;
-    }
-  >();
-
-  for (const post of posts) {
-    for (const tag of post.data.tags ?? []) {
-      const slug = slugify(tag);
-
-      if (!slug) {
-        continue;
-      }
-
-      const archive =
-        archives.get(slug) ??
-        {
-          tag,
-          slug,
-          posts: [],
-          postIds: new Set<string>(),
-        };
-
-      if (!archive.postIds.has(post.id)) {
-        archive.posts.push(post);
-        archive.postIds.add(post.id);
-      }
-
-      archives.set(slug, archive);
-    }
-  }
-
-  return Array.from(archives.values())
-    .map(({ tag, slug, posts }) => ({
-      tag,
-      slug,
-      count: posts.length,
-      posts,
-    }))
-    .sort((a, b) =>
-      a.tag.localeCompare(b.tag)
-    );
+/**
+ * Every tag in use across the given entries, alphabetically. Drives the filter
+ * bar on /posts, which is the only place tags are browsable.
+ */
+export function collectTags(entries: Dated[]): string[] {
+  return [
+    ...new Set(
+      entries.flatMap(
+        (entry) => entry.data.tags ?? []
+      )
+    ),
+  ].sort();
 }
 
 /**
@@ -246,6 +227,56 @@ export function getPageSlug(
   filePath?: string
 ): string {
   return `/${getPageSlugPath(id, filePath)}`;
+}
+
+export function getGuidePathSegments(
+  filePath?: string
+): string[] {
+  if (!filePath) {
+    return [];
+  }
+
+  return filePath
+    .replace(GUIDES_PATH, "")
+    .split("/")
+    .filter(Boolean)
+    .filter((segment) => !segment.startsWith("_"))
+    .slice(0, -1)
+    .map(slugify);
+}
+
+export function getGuideSlugPath(
+  id: string,
+  filePath?: string
+): string {
+  const segments = getGuidePathSegments(filePath);
+  const slug = slugify(getPostSlugSegment(id));
+
+  return segments.length > 0
+    ? [...segments, slug].join("/")
+    : slug;
+}
+
+export function getGuideSlug(
+  id: string,
+  filePath?: string
+): string {
+  return `/${getGuideSlugPath(id, filePath)}`;
+}
+
+/**
+ * Full guide URL.
+ *
+ * Example:
+ * "/guides/markdown-and-ai"
+ */
+export function getGuideUrl(
+  id: string,
+  filePath?: string
+): string {
+  return getAssetPath(
+    `guides/${getGuideSlugPath(id, filePath)}`
+  );
 }
 
 /**
@@ -376,24 +407,3 @@ export function getRelatedPosts(
     .map((item) => item.post);
 }
 
-// ── Grouping ───────────────────────────────────────────────────────────────────
-
-export function getPostsGroupedByYear(
-  entries: Post[]
-): [string, Post[]][] {
-  const grouped = entries.reduce<Record<string, Post[]>>((acc, entry) => {
-    const year = entry.data.published.getFullYear().toString();
-    (acc[year] ??= []).push(entry);
-    return acc;
-  }, {});
-
-  for (const year in grouped) {
-    grouped[year].sort(
-      (a, b) => b.data.published.valueOf() - a.data.published.valueOf()
-    );
-  }
-
-  return Object.entries(grouped).sort(
-    ([a], [b]) => Number(b) - Number(a)
-  );
-}

@@ -1,52 +1,46 @@
 ---
-import { type Post } from "@/utils/content";
+import { type Post, type Guide } from "@/utils/content";
 import { calculateReadingTime } from "@/utils/text";
 import siteConfig from "@/site.config";
 
 type Props = {
-  post: Post;
+  post: Post | Guide;
   showReadingTime?: boolean;
   showLanguage?: boolean;
-  accentCategory?: boolean;
+  /** Prefix for the date, e.g. "Updated". Guides use it; posts do not. */
+  dateLabel?: string;
+  /** Show the revision date instead of the publication date. */
+  useUpdated?: boolean;
 };
 
 const {
   post,
   showReadingTime = false,
   showLanguage = false,
-  accentCategory = false,
+  dateLabel,
+  useUpdated = false,
 } = Astro.props;
 
-const { category, published, updated, lang } = post.data;
+const { published, updated, lang } = post.data;
+
+const date = useUpdated ? (updated ?? published) : published;
 
 const displayDate = new Intl.DateTimeFormat("en", {
   month: "short",
   year: "numeric",
-}).format(updated ?? published);
+}).format(date);
 
 const readingTime =
   siteConfig.showReadingTime && showReadingTime
     ? calculateReadingTime(post.body ?? "").text
     : null;
 ---
-{
-  category && (
-    <span
-      class:list={[
-        "",
-        { "text-primary": accentCategory },
-      ]}
-    >
-      {category}
-    </span>
-  )
-}
 
 <time
-  datetime={published.toISOString()}
+  datetime={date.toISOString()}
   class="tabular-nums"
 >
-  {displayDate}
+  {dateLabel ? `${dateLabel} ${displayDate}` : displayDate}
 </time>
 
 {

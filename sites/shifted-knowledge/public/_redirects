@@ -1,0 +1,11 @@
+# Cloudflare Pages redirects. One rule per line: <from> <to> <status>
+#
+# /archive was a second view of the same posts as /posts. /posts is now the
+# complete, filterable timeline, so the archive is gone and its URLs point there.
+/archive /posts 301
+/archive/* /posts 301
+
+# Tag pages are gone too; the filter bar on /posts replaces them, and it reads
+# the tag from the query string.
+/tags /posts 301
+/tags/:tag /posts?tag=:tag 301

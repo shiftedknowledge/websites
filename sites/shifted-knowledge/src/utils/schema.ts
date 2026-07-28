@@ -1,5 +1,5 @@
 import siteConfig from "@/site.config";
-import { type Post, type Page, getPostUrl } from "./content";
+import { type Post, type Guide, type Page, getPostUrl } from "./content";
 
 export function generateWebsiteSchema() {
   return {
@@ -11,12 +11,22 @@ export function generateWebsiteSchema() {
   };
 }
 
+/**
+ * Article schema for a post or a guide.
+ *
+ * Posts are BlogPosting; guides are TechArticle, because they are maintained
+ * reference material rather than a dated entry in a timeline. Pass `url` for a
+ * guide; posts fall back to their own URL helper.
+ */
 export function generatePostSchema(
-  post: Post
+  post: Post | Guide,
+  url?: string
 ) {
+  const isGuide = post.collection === "guides";
+
   return {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
+    "@type": isGuide ? "TechArticle" : "BlogPosting",
     headline: post.data.title,
     description: post.data.description,
     datePublished: post.data.published,
@@ -24,10 +34,12 @@ export function generatePostSchema(
       post.data.updated ??
       post.data.published,
 
-    url: getPostUrl(
-      post.id,
-      post.filePath
-    ),
+    url:
+      url ??
+      getPostUrl(
+        post.id,
+        post.filePath
+      ),
 
     author: {
       "@type": "Person",

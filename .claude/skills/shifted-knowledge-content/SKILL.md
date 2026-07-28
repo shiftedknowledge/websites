@@ -1,6 +1,6 @@
 ---
 name: shifted-knowledge-content
-description: Manage content for shiftedknowledge.com — posts (essays and notes), pages, images, tags, drafts, and publishing. Use when the user mentions Shifted Knowledge content, a post or essay or note on that site, or wants something published, hidden, or fixed on shiftedknowledge.com.
+description: Manage content for shiftedknowledge.com — posts, guides, pages, images, tags, drafts, and publishing. Use when the user mentions Shifted Knowledge content, a post or guide on that site, or wants something published, hidden, or fixed on shiftedknowledge.com.
 ---
 
 # Shifted Knowledge — content
@@ -35,31 +35,48 @@ the handoff point.
 
 ## What is here
 
-Two collections only. This site is deliberately simpler than Moment Hill.
+Three collections. This site is deliberately simpler than Moment Hill.
 
 | Folder | Collection | URL |
 |---|---|---|
 | `content/posts/` | `posts` | `/posts/<filename>` |
+| `content/guides/` | `guides` | `/guides/<filename>` |
 | `content/pages/` | `pages` | `/<filename>` |
 
 **Filename is the slug.** Flat, lowercase, hyphenated. Never
 `my-post/index.md` — the URL becomes `/posts/my-post/index`.
 
-**Essays and notes are one collection**, separated by a field rather than a
-folder:
+**Posts and guides are separate collections**, because they behave differently:
 
-- `category: Essay` — worked-through, long-form.
-- `category: Note` — short, journal-style.
+- A **post** is dated and stays as written. It appears on `/posts`, on the home
+  page, and in the RSS feed, ordered by `published`.
+- A **guide** is maintained. It appears only on `/guides`, ordered by `updated`,
+  shows "Updated <month year>" instead of a publication date, gets no
+  previous/next navigation and no related-posts list, and is **deliberately
+  excluded from the RSS feed** so that revising one is not announced as news.
+
+There are **no categories**. The field is gone from the schema; `tags` carry any
+finer distinction.
 
 ```bash
-./new-post.sh "The Title" essay      # or: note
+./new-post.sh "The Title"           # a post
+./new-post.sh "The Title" guide     # a guide
 ```
 
-`tags` are lowercased and de-duplicated automatically, and drive `/tags`.
+`tags` are lowercased and de-duplicated automatically and drive the filter bar on
+`/posts` (deep-linkable as `/posts?tag=<tag>`). There are no `/tags` pages.
 `annotation` is an optional short aside. `cover` points at an image in the repo.
 
-The site has **Pagefind search** and generates OG images per post from `title`
-and `description`, so those two fields do real work beyond the listing.
+The site has **Pagefind search** (the trigger is in the header) and generates OG
+images per post and per guide from `title` and `description`, so those two fields
+do real work beyond the listing.
+
+### One timeline, one reference shelf
+
+`/posts` is the complete, unpaginated, filterable list of every post. There is no
+separate archive page and no `/tags` index; both were removed because they were
+second views of the same data. `/archive` and `/tags/<tag>` redirect via
+`sites/shifted-knowledge/public/_redirects`.
 
 ## Publishing
 

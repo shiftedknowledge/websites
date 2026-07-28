@@ -1,7 +1,7 @@
 ---
 import { type Post } from "@/utils/content";
 import SectionHeader from "@/components/SectionHeader.astro";
-import ArchiveItem from "@/components/content/ArchiveItem.astro";
+import EntryRow from "@/components/content/EntryRow.astro";
 
 type Props = {
   posts: Post[];
@@ -20,7 +20,7 @@ const {
   <SectionHeader title={sectionTitle} subheading={sectionDesc} />
   <div class="flex flex-col space-y-2 mt-4">
     {posts.map((post) => (
-      <ArchiveItem post={post} />
+      <EntryRow post={post} />
     ))}
   </div>
 </section>

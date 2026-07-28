@@ -1,7 +1,7 @@
 ---
 import siteConfig from "@/site.config";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { type Post, getPostSlug, getAllPosts, getRelatedPosts } from "@/utils/content";
+import { type Post, type Guide, getPostUrl, getGuideUrl, getAllPosts, getRelatedPosts } from "@/utils/content";
 import { slugify } from "@/utils/text";
 import { getCoverImage, getGalleryImages } from "@/utils/image";
 import Breadcrumb from "@/components/Breadcrumb.astro";
@@ -18,8 +18,11 @@ import ImageWrapper from "@/components/ImageWrapper.astro";
 import PostGallery from "@/components/content/PostGallery.astro";
 import GalleryInit from "@/components/GalleryInit.astro";
 
+// Shared by posts and guides. A guide has no place in the timeline, so it gets
+// no previous/next navigation and no "more like this" list; everything else
+// about rendering a long-form article is identical.
 type Props = {
-  post: Post;
+  post: Post | Guide;
   prevPost?: Post | null;
   nextPost?: Post | null;
 };
@@ -29,6 +32,8 @@ const {
   prevPost,
   nextPost,
 } = Astro.props;
+
+const isGuide = post.collection === "guides";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en", {
@@ -48,10 +53,19 @@ function formatMonthYear(date: Date) {
 }
 const { title, description, cover, published, tags } = post.data;
 
-const allPosts    = await getAllPosts();
-const relatedPosts = getRelatedPosts(post, allPosts, siteConfig.relatedPosts);
-const ogImage = `/og/posts/${getPostSlug(post.id, post.filePath)}.png`;
-const structuredData = generatePostSchema(post);
+const entryUrl = isGuide
+  ? getGuideUrl(post.id, post.filePath)
+  : getPostUrl(post.id, post.filePath);
+
+// Related posts are a timeline idea. A guide stands on its own.
+const relatedPosts = isGuide
+  ? []
+  : getRelatedPosts(post as Post, await getAllPosts(), siteConfig.relatedPosts);
+
+// The OG route lives beside the page (…/<slug>/index.png.ts), so the image URL
+// is the entry URL plus the filename. Keep these in step.
+const ogImage = `${entryUrl}/index.png`;
+const structuredData = generatePostSchema(post, entryUrl);
 const coverImage = getCoverImage(cover);
 const galleryImages = getGalleryImages(post.filePath ?? '');
 ---
@@ -89,7 +103,12 @@ const galleryImages = getGalleryImages(post.filePath ?? '');
       
       <!-- Metadata -->
       <div class="post-meta flex flex-row items-baseline gap-2 mb-3 text-xs font-ui text-muted-foreground">
-        <PostMeta post={post} accentCategory showReadingTime />
+        <PostMeta
+          post={post}
+          showReadingTime
+          useUpdated={isGuide}
+          dateLabel={isGuide ? "Updated" : undefined}
+        />
       </div>
       <div class="divider" />
     </header>
@@ -138,7 +157,7 @@ const galleryImages = getGalleryImages(post.filePath ?? '');
             {post.data.tags.map(
               (tag) => (
                 <a
-                  href={`/tags/${slugify(tag)}`}
+                  href={`/posts?tag=${encodeURIComponent(tag)}`}
                   class="text-sm underline font-ui text-muted-foreground link-hover"
                 >
                   {tag}
@@ -152,19 +171,16 @@ const galleryImages = getGalleryImages(post.filePath ?? '');
     <div class="divider" />
   </section>
   
-  <Fragment slot="navigation">
-    <PostNavigation
-      prevPost={prevPost}
-      nextPost={nextPost}
-    />
-  </Fragment>
+  {(prevPost || nextPost) && (
+    <Fragment slot="navigation">
+      <PostNavigation
+        prevPost={prevPost}
+        nextPost={nextPost}
+      />
+    </Fragment>
+  )}
   <Fragment slot="after">
     {relatedPosts.length > 0 && (
-      // <PostFeed
-      //   posts={relatedPosts}
-      //   variant="timeline"
-      //   sectionTitle="Related Reading"
-      // />
       <RelatedPosts posts={relatedPosts} sectionTitle="More like this"/>
     )}
   </Fragment>

@@ -3,8 +3,8 @@ import type {
 } from "astro";
 
 import {
-  getAllPosts,
-  getPostSlug,
+  getAllGuides,
+  getGuideSlug,
 } from "@/utils/content";
 
 import {
@@ -12,35 +12,38 @@ import {
 } from "@/utils/og";
 
 export async function getStaticPaths() {
-  const posts = await getAllPosts();
+  const guides = await getAllGuides();
 
-  return posts.map((post) => ({
+  return guides.map((guide) => ({
     params: {
-      slug: getPostSlug(
-        post.id,
-        post.filePath
+      slug: getGuideSlug(
+        guide.id,
+        guide.filePath
       ),
     },
 
     props: {
-      post,
+      guide,
     },
   }));
 }
 
 export const GET: APIRoute =
   async ({ props }) => {
-    const { post } = props;
+    const { guide } = props;
 
     const png =
       await generateOgImage({
-        title: post.data.title,
+        title: guide.data.title,
 
         description:
-          post.data.description,
+          guide.data.description,
+
+        eyebrow: "Guide",
 
         published:
-          post.data.published,
+          guide.data.updated ??
+          guide.data.published,
       });
 
     return new Response(png, {

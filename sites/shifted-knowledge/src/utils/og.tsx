@@ -11,7 +11,7 @@ import notoSerifBold from "@/assets/fonts/NotoSerif-Bold.ttf";
 export type OgImageOptions = {
   title: string;
   description?: string;
-  category?: string;
+  eyebrow?: string;
   published?: Date;
   site?: string;
 };
@@ -31,7 +31,7 @@ function formatDate(date?: Date) {
 export async function generateOgImage({
   title,
   description,
-  category,
+  eyebrow,
   published,
   site = siteConfig.url,
   }: OgImageOptions) {
@@ -66,13 +66,13 @@ export async function generateOgImage({
           "
         >
           ${
-            category
-              ? `<span>${category}</span>`
+            eyebrow
+              ? `<span>${eyebrow}</span>`
               : ""
           }
 
           ${
-            category && published
+            eyebrow && published
               ? `<span>·</span>`
               : ""
           }

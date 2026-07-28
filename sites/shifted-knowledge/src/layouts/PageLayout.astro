@@ -54,9 +54,9 @@ const formattedDate = last?.toLocaleDateString("en-US", {
   month: "long",
 });
 
-const ogImage = entry
-  ? `/og/${entry.id}.png`
-  : undefined;
+// Pages have no OG route of their own, so they fall back to the site-wide
+// card that SEO.astro resolves.
+const ogImage = undefined;
 
 ---
 <BaseLayout schema={schema}>

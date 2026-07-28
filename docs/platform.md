@@ -46,14 +46,24 @@ Local checkouts on this machine:
 |---|---|---|
 | Domain | shiftedknowledge.com | momenthill.com |
 | What it is | personal site, building in the open | advisory practice, frameworks + AI leverage |
-| Collections | `posts`, `pages` | `posts`, `pages`, `frameworks`, `explainers` |
+| Collections | `posts`, `guides`, `pages` | `posts`, `pages`, `frameworks`, `explainers` |
 | Search | Pagefind, built in | none |
 | Newsletter | none | Buttondown |
 | Mail | Fastmail | Microsoft 365 |
 | Voice | first person, plain | measured, senior, British |
 
 Both are bespoke Astro 6 apps on Tailwind v4. They share the build and deploy
-plumbing and nothing visual. `CONTENT_SCHEMA` is `1` for both.
+plumbing and nothing visual. `CONTENT_SCHEMA` is `2` for Shifted Knowledge and
+`1` for Moment Hill; the number is per site and they are not meant to march in
+step.
+
+Shifted Knowledge's structure is deliberately two-shelved. `/posts` is the
+complete, unpaginated, tag-filterable timeline and the only thing in the RSS
+feed, which carries **full post content**, not summaries. `/guides` holds
+standalone explanations that get revised, ordered by `updated`, and is kept out
+of the feed so an edit does not read as news. There is no archive page and no
+`/tags` index; both were second views of the same data and now redirect to
+`/posts` via that app's `public/_redirects`.
 
 The asymmetry is deliberate, not drift. Moment Hill has no Pagefind dependency
 and its `npm run build` is a bare `astro build`; Shifted Knowledge's `build`
@@ -169,6 +179,11 @@ Recorded so they are not rediscovered as surprises.
   path for mail.
 - Squarespace is still being paid for.
 - Moment Hill has no site search. Fine for its size; a decision, not a gap.
+- Shifted Knowledge's RSS feed renders each post with Astro's container API and
+  registers **no renderers**, because `@astrojs/mdx` 6.0.3's container renderer
+  fails to bundle (an unresolved `satteri` import). Every post is plain markdown
+  so this costs nothing today, but an `.mdx` post using a framework component
+  would need that resolved first.
 - `shifted-knowledge`'s **preview** `INFRA_REF` is pinned to the first platform
   commit while production tracks `main`. Harmless while no preview branches
   exist.
