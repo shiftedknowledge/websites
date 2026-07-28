@@ -11,7 +11,7 @@ const homeEntry =
   variant === "studio" ? null : await getEntry("pages", "home-intro");
 const Content = homeEntry ? (await render(homeEntry)).Content : null;
 ---
-<section class="home-hero flex flex-col pt-8 sm:pt-12" data-pagefind-ignore>
+<section class="home-hero flex flex-col pt-8 sm:pt-12">
   {variant === "studio" ? (
     <p class="font-content italic text-2xl sm:text-3xl max-w-xl leading-snug tracking-tight wrap-break-word text-foreground">
       Raw vectors, quiet logic.

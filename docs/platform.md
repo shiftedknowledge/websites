@@ -47,7 +47,7 @@ Local checkouts on this machine:
 | Domain | shiftedknowledge.com | momenthill.com |
 | What it is | personal site, building in the open | advisory practice, frameworks + AI leverage |
 | Collections | `posts`, `guides`, `pages` | `posts`, `pages`, `frameworks`, `explainers` |
-| Search | Pagefind, built in | none |
+| Search | none | none |
 | Newsletter | none | Buttondown |
 | Mail | Fastmail | Microsoft 365 |
 | Voice | first person, plain | measured, senior, British |
@@ -57,18 +57,19 @@ plumbing and nothing visual. `CONTENT_SCHEMA` is `2` for Shifted Knowledge and
 `1` for Moment Hill; the number is per site and they are not meant to march in
 step.
 
-Shifted Knowledge's structure is deliberately two-shelved. `/posts` is the
-complete, unpaginated, tag-filterable timeline and the only thing in the RSS
-feed, which carries **full post content**, not summaries. `/guides` holds
-standalone explanations that get revised, ordered by `updated`, and is kept out
-of the feed so an edit does not read as news. There is no archive page and no
-`/tags` index; both were second views of the same data and now redirect to
-`/posts` via that app's `public/_redirects`.
+Shifted Knowledge's structure is deliberately two-shelved and deliberately
+plain. `/posts` is every post, newest first, grouped by year: no pagination, no
+filtering, no tags on the page, no client-side JavaScript. It is also the only
+thing in the RSS feed, which carries **full post content**, not summaries.
+`/guides` holds standalone explanations that get revised, ordered by `updated`,
+and is kept out of the feed so an edit does not read as news.
 
-The asymmetry is deliberate, not drift. Moment Hill has no Pagefind dependency
-and its `npm run build` is a bare `astro build`; Shifted Knowledge's `build`
-script runs Pagefind and copies the index into place. Do not add search to
-Moment Hill to make them match.
+What is *not* there is the point. No archive page, no `/tags` index, no search.
+The archive and tag pages were second views of the same data. Pagefind shipped
+briefly and came out again: the site is small, it runs on direct links and RSS,
+and search was chrome it had not earned. All the removed URLs redirect to
+`/posts` via that app's `public/_redirects`. Revisit once there is enough
+content to justify it.
 
 ## How a build happens
 

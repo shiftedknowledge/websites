@@ -69,7 +69,8 @@ for dir in "$CONTENT_ROOT"/content/*/; do
 done
 shopt -u nullglob
 
-# 4. Build the app. `npm run build` (not bare astro build) so Pagefind runs.
+# 4. Build the app through its npm script, not a bare astro build: the script is
+#    the site's own contract and may do more than astro build.
 cd "$APP"
 npm ci
 npm run build

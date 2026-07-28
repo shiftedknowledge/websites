@@ -63,20 +63,25 @@ finer distinction.
 ./new-post.sh "The Title" guide     # a guide
 ```
 
-`tags` are lowercased and de-duplicated automatically and drive the filter bar on
-`/posts` (deep-linkable as `/posts?tag=<tag>`). There are no `/tags` pages.
+`tags` are lowercased and de-duplicated automatically and travel out as RSS
+categories, but they are **not shown anywhere on the site** and there is nothing
+to browse them with. Keep using them; treat them as metadata, not navigation.
 `annotation` is an optional short aside. `cover` points at an image in the repo.
 
-The site has **Pagefind search** (the trigger is in the header) and generates OG
-images per post and per guide from `title` and `description`, so those two fields
-do real work beyond the listing.
+The site generates OG images per post and per guide from `title` and
+`description`, so those two fields do real work beyond the listing.
 
-### One timeline, one reference shelf
+### Deliberately plain
 
-`/posts` is the complete, unpaginated, filterable list of every post. There is no
-separate archive page and no `/tags` index; both were removed because they were
-second views of the same data. `/archive` and `/tags/<tag>` redirect via
+`/posts` is every post, newest first, grouped by year. No pagination, no
+filtering, no tags on the page, and no client-side JavaScript. There is no
+archive page, no `/tags` index, and **no search** — Pagefind shipped briefly and
+was removed. The site runs on direct links and RSS, and the chrome was not
+earned yet. `/archive*` and `/tags*` redirect to `/posts` via
 `sites/shifted-knowledge/public/_redirects`.
+
+Revisit this when there is enough content to justify it, not before, and only
+when asked.
 
 ## Publishing
 
@@ -142,13 +147,12 @@ The full brand system is in the vault at
 cd /Users/jochen/CODE/websites
 scripts/dev-link.sh shifted-knowledge ../website-content/shifted-knowledge
 cd sites/shifted-knowledge && ./preview.sh          # drafts visible
-./preview.sh final                                   # drafts hidden, search, images
+./preview.sh final                                   # drafts hidden, images
 scripts/build-site.sh shifted-knowledge ../website-content/shifted-knowledge
 ```
 
-`preview.sh final` matters more here than on Moment Hill: it is the only local
-mode that runs Pagefind and generates the OG images, so it is the only one that
-proves search and share cards work.
+`preview.sh final` is the only local mode that generates the OG images, so it is
+the only one that proves share cards work.
 
 Zod validates every entry including drafts. A missing required field fails the
 build for this site only, and the live version stays up until a good build

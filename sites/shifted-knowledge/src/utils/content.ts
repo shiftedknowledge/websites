@@ -107,19 +107,6 @@ export async function getAllPages(): Promise<Page[]> {
   return pagesCache;
 }
 
-/**
- * Every tag in use across the given entries, alphabetically. Drives the filter
- * bar on /posts, which is the only place tags are browsable.
- */
-export function collectTags(entries: Dated[]): string[] {
-  return [
-    ...new Set(
-      entries.flatMap(
-        (entry) => entry.data.tags ?? []
-      )
-    ),
-  ].sort();
-}
 
 /**
  * Remove hidden folders and normalize directory segments.

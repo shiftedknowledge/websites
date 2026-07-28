@@ -75,8 +75,8 @@ npm install
 ./preview.sh final    # the exact production build (drafts hidden, search + images)
 ```
 
-`npm run build` must be used for production, never bare `astro build`: the npm
-script also runs Pagefind (search) and copies it into place.
+Use `npm run build` for production. Neither site has a build step beyond
+`astro build` today, but the npm script is the contract `build-site.sh` calls.
 
 ## How a deploy works
 

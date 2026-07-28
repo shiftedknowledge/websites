@@ -55,7 +55,7 @@ scripts/build-site.sh <site> ../website-content/<site>
 
 This is byte for byte what Cloudflare runs. **It is the verification step** —
 "the change looks right in dev" is not enough, because dev renders drafts and
-skips Pagefind. Run it before calling any app change done.
+skips image optimisation. Run it before calling any app change done.
 
 What it does, in order: allowlist the site name, check
 `content-contract.yml`'s `schema:` against the app's `CONTENT_SCHEMA`, wipe and
@@ -99,9 +99,10 @@ would become `/my-thing/index`.
 
 ## Site-specific facts that look like bugs
 
-- **Moment Hill has no Pagefind.** Its `npm run build` is a bare `astro build`.
-  Shifted Knowledge's also runs Pagefind and copies the index into `public/`.
-  This asymmetry is a decision. Do not "fix" it.
+- **Neither site has search.** Shifted Knowledge shipped Pagefind briefly and it
+  was removed: the site is small, it lives on direct links and RSS, and search
+  was chrome it had not earned. Do not add it back to either site without being
+  asked.
 - **`home.md`'s `intro` and `foundation.headline` are plain text, not
   markdown.** `index.astro` escapes them and hand-renders `**bold**` and
   paragraph breaks. Anything else — links, lists, italics — appears literally.

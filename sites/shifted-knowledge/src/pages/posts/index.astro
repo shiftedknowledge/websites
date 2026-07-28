@@ -3,17 +3,11 @@ import PageLayout from "@/layouts/PageLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import PostTitle from "@/components/content/PostTitle.astro";
 import PostMeta from "@/components/content/PostMeta.astro";
-import { getAllPosts, collectTags, type Post } from "@/utils/content";
+import { getAllPosts, type Post } from "@/utils/content";
 
-// Every post, on one page. Filtering and progressive reveal happen client side,
-// so there is no pagination and no separate archive to keep in step.
+// Every post, newest first, grouped by year. No pagination, no filtering, no
+// client-side JavaScript: the whole timeline is one static page.
 const allPosts = await getAllPosts();
-const allTags = collectTags(allPosts);
-
-// Only worth rendering the language toggle if there is something to filter out.
-const hasTranslations = allPosts.some(
-  (post) => (post.data.lang ?? "en") !== "en",
-);
 
 const yearMap = new Map<number, Post[]>();
 for (const post of allPosts) {
@@ -23,8 +17,6 @@ for (const post of allPosts) {
 }
 const years = [...yearMap.keys()].sort((a, b) => b - a);
 
-const INITIAL_PER_YEAR = 10;
-
 const title = "Posts";
 const description = "Everything, newest first.";
 ---
@@ -32,256 +24,37 @@ const description = "Everything, newest first.";
 <PageLayout {title} {description} showHeader={false}>
   <PageHeader {title} subheading={description} />
 
-  {(allTags.length > 0 || hasTranslations) && (
-    <div
-      class="mb-10 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-      data-pagefind-ignore
-    >
-      <nav
-        id="post-filters"
-        class="flex flex-wrap gap-x-4 gap-y-2 font-ui"
-        aria-label="Filter posts by tag"
-      >
-        <button
-          class="relative filter-link text-sm text-muted-foreground cursor-pointer link-hover is-active"
-          data-filter="all"
-          type="button">all</button
-        >
-        {allTags.map((tag) => (
-          <button
-            class="relative filter-link text-sm text-muted-foreground cursor-pointer link-hover"
-            data-filter={tag}
-            type="button">{tag}</button
-          >
-        ))}
-      </nav>
+  {years.map((year) => {
+    const posts = yearMap.get(year)!;
 
-      {hasTranslations && (
-        <label class="flex shrink-0 items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-          <input id="english-only" type="checkbox" class="accent-primary" />
-          <span>English only</span>
-        </label>
-      )}
-    </div>
-  )}
+    return (
+      <section class="mb-12" aria-label={`${year}`}>
+        <div class="flex items-baseline justify-between border-b border-border/50 py-2 mb-4">
+          <span class="text-base tracking-[0.12em] uppercase italic text-muted-foreground">
+            {year}
+          </span>
+          <span class="font-code text-sm tabular-nums text-muted-foreground">
+            {posts.length}&thinsp;{posts.length === 1 ? "writing" : "writings"}
+          </span>
+        </div>
 
-  <div id="post-timeline" data-pagefind-ignore>
-    {years.map((year) => {
-      const posts = yearMap.get(year)!;
-      const hasMore = posts.length > INITIAL_PER_YEAR;
-      const extraCount = Math.max(0, posts.length - INITIAL_PER_YEAR);
-
-      return (
-        <section class="year-section mb-12" data-year={String(year)} aria-label={`${year}`}>
-          <div class="flex items-baseline justify-between border-b border-border/50 py-2 mb-4">
-            <span class="text-base tracking-[0.12em] uppercase italic text-muted-foreground">
-              {year}
-            </span>
-            <span class="font-code text-sm tabular-nums text-muted-foreground">
-              <span class="count-display">{posts.length}</span>&thinsp;
-              <span class="count-noun">{posts.length === 1 ? "writing" : "writings"}</span>
-            </span>
-          </div>
-
-          {posts.map((post, index) => (
-            <div
-              class="post-item flex flex-col space-y-3 py-4 group hover:translate-x-2 transition-transform ease-fluid"
-              data-tags={(post.data.tags ?? []).join(" ")}
-              data-lang={post.data.lang ?? "en"}
-              hidden={index >= INITIAL_PER_YEAR}
-            >
-              <PostTitle
-                post={post}
-                class="text-lg md:text-xl font-medium text-balance leading-snug link-hover"
-              />
-              {post.data.description && (
-                <p class="text-sm italic leading-normal text-muted-foreground md:max-w-xl">
-                  {post.data.description}
-                </p>
-              )}
-              <div class="post-meta flex flex-row items-baseline gap-2 text-xs font-ui text-muted-foreground">
-                <PostMeta post={post} showReadingTime />
-              </div>
+        {posts.map((post) => (
+          <div class="flex flex-col space-y-3 py-4 group hover:translate-x-2 transition-transform ease-fluid">
+            <PostTitle
+              post={post}
+              class="text-lg md:text-xl font-medium text-balance leading-snug link-hover"
+            />
+            {post.data.description && (
+              <p class="text-sm italic leading-normal text-muted-foreground md:max-w-xl">
+                {post.data.description}
+              </p>
+            )}
+            <div class="post-meta flex flex-row items-baseline gap-2 text-xs font-ui text-muted-foreground">
+              <PostMeta post={post} showReadingTime />
             </div>
-          ))}
-
-          {hasMore && (
-            <button
-              class="show-more-btn text-sm text-muted-foreground cursor-pointer link-hover mt-1"
-              type="button"
-              data-year={String(year)}
-            >
-              Show {extraCount} more from {year} ↓
-            </button>
-          )}
-        </section>
-      );
-    })}
-
-    <p id="no-results" class="text-muted-foreground italic" hidden>
-      Nothing here with that tag.
-    </p>
-  </div>
-</PageLayout>
-
-<style>
-  .filter-link::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--accent);
-    transition: width 0.2s ease;
-  }
-
-  .filter-link.is-active {
-    color: var(--color-primary);
-    font-weight: 500;
-    font-style: italic;
-  }
-
-  .filter-link.is-active::after {
-    width: 100%;
-  }
-
-  .filter-link:hover:not(.is-active) {
-    color: var(--color-primary);
-  }
-</style>
-
-<script>
-  const INITIAL_PER_YEAR = 10;
-
-  function initTimeline() {
-    const filterLinks =
-      document.querySelectorAll<HTMLButtonElement>(".filter-link");
-    const yearSections =
-      document.querySelectorAll<HTMLElement>(".year-section");
-    const noResults = document.getElementById("no-results");
-
-    if (!yearSections.length) return;
-
-    const expandedYears = new Set<string>();
-    let englishOnly = false;
-
-    // Deep links from elsewhere on the site: /posts?tag=build-story
-    const params = new URLSearchParams(window.location.search);
-    let activeFilter = params.get("tag") ?? "all";
-
-    // Fall back to "all" if the URL names a tag that no longer exists.
-    const knownFilters = new Set(
-      [...filterLinks].map((link) => link.dataset.filter ?? "all"),
+          </div>
+        ))}
+      </section>
     );
-    if (!knownFilters.has(activeFilter)) activeFilter = "all";
-
-    const englishToggle = document.getElementById(
-      "english-only",
-    ) as HTMLInputElement | null;
-
-    englishToggle?.addEventListener("change", (e) => {
-      englishOnly = (e.currentTarget as HTMLInputElement).checked;
-      updateVisibility();
-    });
-
-    filterLinks.forEach((link) => {
-      link.addEventListener("click", () => {
-        const filter = link.dataset.filter ?? "all";
-        if (filter === activeFilter) return;
-
-        activeFilter = filter;
-        expandedYears.clear();
-
-        const url = new URL(window.location.href);
-        if (filter === "all") {
-          url.searchParams.delete("tag");
-        } else {
-          url.searchParams.set("tag", filter);
-        }
-        history.replaceState(null, "", url.toString());
-
-        setActiveFilterUI();
-        updateVisibility();
-      });
-    });
-
-    document
-      .querySelectorAll<HTMLButtonElement>(".show-more-btn")
-      .forEach((btn) => {
-        btn.addEventListener("click", () => {
-          expandedYears.add(btn.dataset.year ?? "");
-          updateVisibility();
-        });
-      });
-
-    function setActiveFilterUI() {
-      filterLinks.forEach((link) => {
-        link.classList.toggle(
-          "is-active",
-          link.dataset.filter === activeFilter,
-        );
-      });
-    }
-
-    function matches(item: HTMLElement): boolean {
-      const tags = (item.dataset.tags ?? "").split(" ");
-      const lang = item.dataset.lang ?? "en";
-
-      const tagMatch = activeFilter === "all" || tags.includes(activeFilter);
-      const languageMatch = !englishOnly || lang === "en";
-
-      return tagMatch && languageMatch;
-    }
-
-    function updateVisibility() {
-      let totalVisible = 0;
-
-      yearSections.forEach((section) => {
-        const year = section.dataset.year ?? "";
-        const isExpanded = expandedYears.has(year);
-        const items = [
-          ...section.querySelectorAll<HTMLElement>(".post-item"),
-        ];
-
-        const matching = items.filter(matches);
-        const limit = isExpanded ? matching.length : INITIAL_PER_YEAR;
-
-        items.forEach((item) => {
-          item.hidden = true;
-        });
-        matching.slice(0, limit).forEach((item) => {
-          item.hidden = false;
-        });
-
-        section.hidden = matching.length === 0;
-        totalVisible += matching.length;
-
-        const countEl = section.querySelector(".count-display");
-        if (countEl) countEl.textContent = String(matching.length);
-
-        const nounEl = section.querySelector(".count-noun");
-        if (nounEl) {
-          nounEl.textContent = matching.length === 1 ? "writing" : "writings";
-        }
-
-        const btn = section.querySelector<HTMLButtonElement>(".show-more-btn");
-        if (btn) {
-          const remaining = matching.length - limit;
-          btn.hidden = remaining <= 0;
-          if (remaining > 0) {
-            btn.textContent = `Show ${remaining} more from ${year} ↓`;
-          }
-        }
-      });
-
-      if (noResults) noResults.hidden = totalVisible > 0;
-    }
-
-    setActiveFilterUI();
-    updateVisibility();
-  }
-
-  initTimeline();
-  document.addEventListener("astro:after-swap", initTimeline);
-</script>
+  })}
+</PageLayout>
