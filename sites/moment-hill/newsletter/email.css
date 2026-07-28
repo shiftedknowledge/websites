@@ -123,21 +123,19 @@ th {
   color: #425e4f;
 }
 
-/* Header and footer blocks, styled by the wrappers in header.html/footer.html. */
-.mh-header {
-  padding-bottom: 1.2em;
-  margin-bottom: 2em;
-  border-bottom: 1px solid #9baca4;
-}
+/* Footer block.
+   There is no header: Buttondown's stock template already prints the
+   newsletter name and date above the body, so a wordmark under it said the
+   same thing twice. `header` is empty on the newsletter object.
 
-.mh-wordmark {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 21px;
-  color: #425e4f;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-}
-
+   NOTE: these two class selectors currently match nothing. `footer.html` was
+   rewritten in Buttondown's own editor on 2026-07-28 and is now markdown with
+   inline spans, carrying no `mh-` classes. That costs nothing today, because
+   `css` is refused on the free plan and none of this file is applied. It will
+   matter at the 50-subscriber upgrade, when `email.css` gets pushed for the
+   first time: either give the footer these classes or restyle to whatever
+   markup it has by then. Do not silently delete the rules instead — the
+   footer design is locked until that threshold. See docs/newsletter.md. */
 .mh-footer {
   margin-top: 3em;
   padding-top: 1.2em;
@@ -150,4 +148,12 @@ th {
 .mh-footer a {
   color: #6f7c77;
   text-decoration: underline;
+}
+
+/* The statutory company line. Present because it has to be, sized so it does
+   not compete with the links above it. */
+.mh-legal {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #9baca4;
 }

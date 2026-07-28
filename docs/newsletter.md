@@ -12,10 +12,11 @@ decision is always yours.
 | | |
 |---|---|
 | Newsletter | `momenthill` — `news_07rd0vfcnh9tt99qkepdn6b78w` |
-| From | `Jochen <jochen@momenthill.com>`, sent on Buttondown's domain |
+| From | `Jochen <insights@newsletter.momenthill.com>` — the custom sending domain, live since 2026-07-28 |
+| Reply-to | `insights@momenthill.com`, a Microsoft 365 alias, so replies are filterable by address |
 | Test mode | **off** — every send is real |
-| Subscribers | 4 confirmed, of which 3 are test addresses (`test@`, `test3@`, `test4@spalink.me`) |
-| Issues sent | one, a pipeline test |
+| Subscribers | 5 confirmed, all `@spalink.me` test addresses |
+| Issues sent | three, all pipeline or design tests |
 | Locale | `en-GB`, Europe/London, tint `#425e4f` |
 
 Those test addresses will receive the next real issue. Removing them needs
@@ -78,10 +79,18 @@ it, then refuses. That is deliberate, and it is cheap to run as a check.
 They are kept as files in `sites/moment-hill/newsletter/`:
 
 ```
-header.html    HTML, supports Buttondown's template tags
+header.html    HTML, supports Buttondown's template tags. Deliberately EMPTY.
 footer.html    HTML, supports template tags
 email.css      styles the sent mail
 ```
+
+**`header.html` is empty on purpose, and must stay a file.** Buttondown's stock
+wrapper already prints the newsletter name and the date directly above the
+body, so a wordmark underneath said the same thing twice in forty pixels. It
+was removed on 2026-07-28. Note that `design push` clears a field only when the
+file exists and is empty — a *missing* file is skipped, not cleared
+([`buttondown.mjs`](../scripts/buttondown.mjs) `cmdDesign`), so deleting
+`header.html` would silently leave the old header live.
 
 `design pull` overwrites those files from Buttondown; `design push` sends them
 back, one field at a time so a plan restriction on one does not discard the
@@ -95,13 +104,29 @@ customizing css". `header`, `footer` and `tint_color` all apply fine. The error
 does not say which plan unlocks it, and it is worth asking Buttondown before
 paying for it, because it changes what an upgrade is actually worth.
 
+**The design is locked until 50 subscribers.** Decided 2026-07-28. The current
+header/footer are what goes out, and they are not to be revisited on taste
+grounds before that threshold. At 50 the plan gets paid for anyway, `css`
+unlocks with it, and `email.css` — already written and sitting in this repo
+unapplied — gets pushed then. So the trigger is a subscriber count, not an
+opinion about how the email looks. Check with `subscribers`.
+
 So the free-tier design is three levers, not four:
 
 1. **`tint_color`** — set to Tyne `#425e4f`. This is what colours links and
    accents in the body, and on free it is the main influence you have over how
    the body copy looks.
-2. **`header.html` / `footer.html`** — carry their own inline styles, so they
-   are fully branded regardless of the CSS restriction.
+2. **`footer.html`** — a wordmark link, the positioning line, and the company
+   disclosure. It carries **no unsubscribe link**: Buttondown's wrapper prints
+   its own immediately below, and having both rendered two unsubscribes in the
+   same footer. `header.html` is empty, as above.
+
+   **It is authored in Buttondown's editor, not here.** Jochen rewrote it in
+   the dashboard on 2026-07-28, so the file is now markdown with a
+   `buttondown-editor-mode` marker rather than the hand-written HTML block it
+   started as. That is fine, but it means the file is a *pulled artefact*: any
+   HTML comment you add to it is destroyed by the next `design pull`. Rationale
+   about the footer belongs in this document, which is why it is here.
 3. **The body** renders with Buttondown's stock template. Headings, quotes and
    code blocks will not match the site until `css` is unlocked.
 
@@ -257,7 +282,14 @@ email they already acted on, which reads as a failure. `subscribed.astro` and
 should find by search.
 
 `buttondown.com/momenthill` still resolves, but it is now a bare subscribe page
-with no archive content on it. Nothing your subscribers see ever links there.
+with no archive content on it.
+
+**One link does still point there, and it cannot be removed on this plan.**
+Buttondown's stock template prints "Did someone forward you this? Subscribe to
+this newsletter" above the body, linked to `buttondown.com/momenthill`. It is
+part of the wrapper, not of `header`/`footer`, so the only way out is the
+$79/mo custom-template plan. Noted as a known exception rather than left to
+make the paragraph above quietly untrue.
 
 **Do not use Buttondown's "private mode" for this.** It sounds like the right
 setting and is not: it blocks public subscriptions entirely, including from form
@@ -274,26 +306,31 @@ until proven otherwise.
   it surprises you.
 - **`css` is not editable on free** (`css__not_allowed`). Header, footer and
   `tint_color` are. Custom email *templates* are $79/mo on top of that.
-- **Mail goes out on Buttondown's default sending domain.**
-  `sending_domain_status` is `none`. The blocker used to be that
-  `momenthill.com` was not on Cloudflare; it is now, so this is available
-  whenever it is wanted. It is not free work: SPF on that domain is `-all`, a
-  hard fail, so adding Buttondown as a sender means editing that record
-  deliberately. See [`dns.md`](dns.md).
+- **Mail goes out on the custom sending domain.** `sending_domain_status` is
+  `valid` as of 2026-07-28. `newsletter.momenthill.com` is delegated to
+  Buttondown's nameservers under Buttondown's "managed" option, so it creates
+  and rotates the DKIM, MX, bounce and click-tracking records itself and there
+  is nothing to maintain in Cloudflare beyond the two `NS` records. The root
+  SPF was never touched: alignment happens on `pm-bounces` inside the
+  subdomain. See [`dns.md`](dns.md).
 - **The API rejects a body starting with `---`**, reading it as stray
   frontmatter. The CLI strips ours. If you ever hand-roll a call, strip it too.
 - **`send-draft` needs a JSON body.** With none it 422s "field required:
   payload". The body *is* the payload, so `{}` means send with defaults. A
   nested `{"payload": {}}` is rejected.
-- **How publishing works is contested.** The CLI publishes with
-  `POST /emails/{id}/send-draft`. The 2026-07-28 audit read Buttondown's docs as
-  saying that route only mails preview copies, and proposed
-  `PATCH /emails/{id}` with `status: about_to_send` instead. The account
-  contradicts that reading: the single issue ever sent reports 5 recipients,
-  5 deliveries and 1 unsubscription, and the `send-draft` code was committed
-  three hours before that send went out. The mechanism with delivery evidence
-  is the one in the CLI. Before switching, turn **test mode on**, send a
-  throwaway draft with the replacement, and confirm it arrives.
+- **Publishing is `PATCH /emails/{id}` with `status: about_to_send`. Settled.**
+  This entry previously argued the opposite and was wrong, so the evidence is
+  recorded here rather than left to be re-litigated. The CLI used to
+  `POST /emails/{id}/send-draft`, defended on the grounds that the one issue
+  ever sent had delivery stats and the `send-draft` code predated it by three
+  hours. That was correlation; the send was made by hand in the dashboard.
+  Tested directly on 2026-07-28: `send-draft` returns **200 with an empty body,
+  the email stays `draft`, `publish_date` stays null, and nothing is
+  delivered** — not to the list, not to the account address. Called twice,
+  delivered nothing twice. The `PATCH` then sent to all 5 subscribers within a
+  minute. So `send --yes` was printing "Sent" and mailing no one. A 2xx from
+  Buttondown is not delivery evidence; the CLI now polls the status and
+  reports what it actually finds.
 - **Test mode is OFF.** `test_mode: false` as of 2026-07-27. Every send goes to
   the real list. When it was on, a send went to the account address only and
   left the email a draft, so "still a draft" did not mean the send had failed;

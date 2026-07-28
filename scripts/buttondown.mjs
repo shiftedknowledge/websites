@@ -385,28 +385,44 @@ async function cmdSend(id, args) {
     );
   }
 
-  // This route is contested; read before changing it.
+  // Publishing is a status transition, not a route call.
   //
-  // The 2026-07-28 audit read Buttondown's docs as saying /send-draft only
-  // mails preview copies, and proposed PATCH {status: "about_to_send"} instead.
-  // The account says otherwise: the one issue ever sent from here reports
-  // 5 recipients, 5 deliveries and 1 unsubscription, and this code was already
-  // committed three hours before that send. So this path demonstrably delivers
-  // to the list, and the replacement has never been run against the live API.
+  // This used to POST /emails/{id}/send-draft, defended by a comment arguing
+  // that the one issue ever sent proved that route delivers. That was
+  // correlation: the code shipped three hours before a send that was made by
+  // hand in the dashboard. Tested directly on 2026-07-28 — send-draft returns
+  // 200 with an empty body, the email stays `draft`, publish_date stays null,
+  // and nobody receives anything, including the account address. Called twice,
+  // delivered nothing twice. The PATCH below then sent to all 5 subscribers.
   //
-  // Keeping the mechanism with delivery evidence. If you switch to the status
-  // transition, prove it first with test mode ON.
-  //
-  // The empty object is load-bearing. send-draft requires a JSON body; with no
-  // body at all it 422s with "field required: payload". The body IS the
-  // payload, so an empty object means "send with defaults" — a nested
-  // {payload: {}} is rejected as an extra input.
-  await api(`/emails/${id}/send-draft`, { method: "POST", body: {}, dangerously: true });
+  // So the failure mode was the worst available: `send --yes` printed "Sent"
+  // and mailed no one. Do not restore send-draft without delivery evidence,
+  // and note that a 200 from Buttondown is not delivery evidence.
+  await api(`/emails/${id}`, {
+    method: "PATCH",
+    body: { status: "about_to_send" },
+    dangerously: true,
+  });
 
-  console.log(`Sent "${email.subject}".`);
+  // Buttondown queues rather than sending inline, so the status right after the
+  // PATCH is `about_to_send`, not `sent`. Poll briefly and report what actually
+  // happened: printing "Sent" off the back of a 2xx is how the old bug hid.
+  let status = "about_to_send";
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 3000));
+    status = (await api(`/emails/${id}`)).status;
+    if (status === "sent") break;
+  }
+
+  if (status === "sent") {
+    console.log(`Sent "${email.subject}".`);
+    return;
+  }
+
+  console.log(`Queued "${email.subject}" — status is "${status}" after 30s.`);
   console.log(
-    "In test mode the send goes to the account address only, and the email\n" +
-      "stays a draft, so this does not consume it.",
+    "Buttondown sends asynchronously, so this is normal for a large list.\n" +
+      `Confirm with: scripts/buttondown.mjs show ${id}`,
   );
 }
 

@@ -82,12 +82,32 @@ only the two `NS` records that hand it over. Added 2026-07-28:
 | NS | `newsletter` | `ns1.onbuttondown.com` | n/a |
 | NS | `newsletter` | `ns2.onbuttondown.com` | n/a |
 
-Everything inside that subdomain — DKIM, an MX to `inbound.postmarkapp.com`, a
-`pm-bounces` CNAME, a click-tracking CNAME and its own `DMARC p=quarantine` —
-is created and rotated by Buttondown, not here. Editing those in Cloudflare
-would achieve nothing; the delegation means Cloudflare no longer answers for
-that name. Buttondown runs on Postmark underneath, which is why the records
-point there.
+Everything inside that subdomain is created and rotated by Buttondown, not
+here. Editing those in Cloudflare would achieve nothing; the delegation means
+Cloudflare no longer answers for that name. Buttondown runs on Postmark
+underneath, which is why the records point there.
+
+What Buttondown is actually serving, enumerated against `ns1.onbuttondown.com`
+on 2026-07-28:
+
+| Type | Host | Value |
+|---|---|---|
+| MX | `@` | `10 inbound.postmarkapp.com` |
+| TXT | `_dmarc` | `v=DMARC1; p=quarantine; rua=mailto:…@inbound.postmarkapp.com; aspf=r; pct=100` |
+| CNAME | `pm-bounces` | `pm.mtasv.net` (which carries `v=spf1 include:spf.mtasv.net -all`) |
+| CNAME | `track` | `webhook-consumer.buttondown.email` (click tracking, enabled) |
+| CNAME | `<selector>._domainkey` | DKIM — present, selector not published anywhere readable |
+
+The DKIM selector cannot be enumerated: the zone is unsigned so there is no
+NSEC to walk, and no date-based or vendor-name guess hits. Its *existence* is
+provable without knowing the name — `_domainkey.newsletter.momenthill.com`
+answers `NOERROR` with no data of any type while a bogus label under it answers
+`NXDOMAIN`, which is an empty non-terminal and can only occur if a child record
+exists. Do not conclude DKIM is missing because you cannot find the selector.
+
+Alignment works without an SPF record on the subdomain: the envelope sender is
+`pm-bounces.newsletter.momenthill.com`, and `aspf=r` relaxes the match to the
+organisational domain. This is why the root `-all` never had to be touched.
 
 **A subdomain, not the root, on purpose.** The newsletter sends as
 `jochen@newsletter.momenthill.com`, so bulk-mail reputation stays separate from
@@ -103,6 +123,14 @@ proves nothing.
 dig @alex.ns.cloudflare.com NS newsletter.momenthill.com +noall +authority
 dig +short @ns1.onbuttondown.com TXT _dmarc.newsletter.momenthill.com
 ```
+
+**Buttondown's own setup page lies about this in Safari.** It renders
+`TypeError: Load failed` where the record status should be. That is WebKit's
+error string for a `fetch()` that never completed — their page catching a
+failed XHR and printing `err.message` into the results slot. It carries no
+information about the zone. The same page in Chrome shows both `NS` records as
+`Present`, and the API reported `sending_domain_status: valid` throughout. If
+a vendor dashboard disagrees with `dig` and the API, believe `dig` and the API.
 
 ### Web
 
