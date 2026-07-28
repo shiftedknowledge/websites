@@ -55,6 +55,23 @@ discovering the problem through bounces.
 DMARC is in monitor mode, so it changes no delivery behaviour. Tighten to
 `p=quarantine` once the reports show only legitimate senders.
 
+**Publishing the DKIM records is only half of DKIM.** There is a separate
+signing switch in the Microsoft 365 admin centre, and it was **off** until
+2026-07-28 while these CNAMEs sat correctly in DNS the whole time. Outbound mail
+was therefore unsigned and landing in recipients' spam folders, with the zone
+looking perfect from the outside. If mail goes to spam again, check the toggle
+before touching a record. Aggregate DMARC reports arrive as XML and are not
+human-readable; point `rua` at a service that parses them.
+
+**Reverse DNS "mismatch" warnings are expected and not actionable.** Mail
+leaves through Microsoft's shared outbound pool, so the greeting name
+(`CWXP265CU010.outbound.protection.outlook.com`) differs from the reverse name
+(`mail-ukwestazon11022107.outbound.protection.outlook.com`). Both are
+Microsoft's. Verified 2026-07-28: reverse DNS exists, it forward-confirms back
+to the same IP, and that IP is inside `52.100.0.0/15` in Microsoft's SPF. The
+test that matters passes. Nobody here owns that IP, that host or that reverse
+zone, so the "fix" mail testers suggest is impossible. Do not chase it.
+
 ### Web
 
 `@` and `www` both resolve to Cloudflare (`104.21.89.241`, `172.67.192.26` and
