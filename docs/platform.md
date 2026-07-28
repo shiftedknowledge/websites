@@ -71,6 +71,21 @@ and search was chrome it had not earned. All the removed URLs redirect to
 `/posts` via that app's `public/_redirects`. Revisit once there is enough
 content to justify it.
 
+**Both feeds carry full post content, and both are posts-only.** Each app
+renders every post through Astro's container API, rewrites root-relative URLs to
+absolute so images survive in a reader, and sanitises the result. The rule is
+the same on both sites and the reason is the same: a feed entry means "a new
+piece of writing", so the collections that get *revised* rather than published —
+Shifted Knowledge's `guides`, Moment Hill's `explainers` and `frameworks` — stay
+out, or an edit would re-announce itself. `pubDate` is `published`, never
+`updated`, for the same reason.
+
+The two implementations are deliberate near-duplicates. They share the platform's
+plumbing and no code; do not refactor them into one.
+
+Moment Hill's feed is currently **empty** — both its posts are drafts. That is
+expected, not a fault.
+
 ## How a build happens
 
 Each Cloudflare Pages project is connected to that site's **content repo**, not

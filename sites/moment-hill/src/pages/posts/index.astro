@@ -19,6 +19,30 @@ const posts = await getAllPosts();
       Working notes on frameworks, AI leverage, and delivery.
     </p>
 
+    {/*
+      Rendered whether or not any posts exist yet. Someone who arrives early and
+      subscribes gets the first piece automatically, which beats asking them to
+      remember to come back. The feed is already in <head> for readers that
+      autodiscover; this is the version a person can see.
+    */}
+    <a
+      href="/rss.xml"
+      class="link-hover mt-6 inline-flex items-center gap-2 text-sm text-muted-foreground"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <circle cx="6.18" cy="17.82" r="2.18" />
+        <path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83C19.56 11.4 12.6 4.44 4 4.44z" />
+        <path d="M4 10.1v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z" />
+      </svg>
+      Subscribe via RSS
+    </a>
+
     <div class="mt-10 space-y-6">
       {
         posts.length === 0 ? (
