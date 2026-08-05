@@ -1,0 +1,4 @@
+interface:
+  display_name: "Site Platform"
+  short_description: "Build and maintain the shared Astro platform"
+  default_prompt: "Use $site-platform to diagnose and verify a website infrastructure change."

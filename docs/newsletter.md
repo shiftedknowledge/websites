@@ -1,5 +1,10 @@
 # The newsletter
 
+> **Deferred:** newsletter publishing is currently manual in Buttondown's own
+> interface. The CLI and this document remain as unfinished implementation
+> material, not as an active agent workflow. Do not use the CLI unless Jochen
+> explicitly reopens this work. See [`HANDOVER.md`](../HANDOVER.md).
+
 How the Moment Hill newsletter works, for whoever is running it next — including
 future you, at 7am, having forgotten all of this.
 
@@ -148,7 +153,7 @@ the $79/mo Professional plan. Header, footer and CSS are free.
 | Issues (markdown) | `newsletters/` at the **root** of the content repo |
 | Scaffold script | `new-newsletter.sh` in the content repo |
 | CLI | [`scripts/buttondown.mjs`](../scripts/buttondown.mjs) |
-| Agent instructions | `.claude/skills/buttondown/SKILL.md` |
+| Current operating status | manual in Buttondown; see [`HANDOVER.md`](../HANDOVER.md) |
 | Signup form | [`sites/moment-hill/src/components/Newsletter.astro`](../sites/moment-hill/src/components/Newsletter.astro) |
 | Newsletter username | `sites/moment-hill/configs/user.config.ts` → `newsletter.username` |
 | API key | `~/.env` → `BUTTONDOWN_API_KEY` |

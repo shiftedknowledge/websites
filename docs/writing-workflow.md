@@ -88,9 +88,10 @@ better prose. "I could not find a fancier word" is often the correct outcome.
 ## iA Writer
 
 **Authorship** is why the tool was chosen. It tracks provenance per character
-and shows it in the editor. Three authors are set up: *You*, *Claude*, *Source*.
-Anything not from his own head is pasted deliberately as Claude or Source, and
-the document view gives a character count per author.
+and shows it in the editor. Jochen distinguishes his own writing, AI-assisted
+text and source material. Anything not from his own head is assigned deliberately
+to the appropriate provenance, and the document view gives a character count per
+author.
 
 That number is ground truth, not an inference, which is the point. It runs
 locally, and the metadata is stored as a block at the end of the markdown file

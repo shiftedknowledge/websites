@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shifted Knowledge Content"
+  short_description: "Publish finished Shifted Knowledge content"
+  default_prompt: "Use $shifted-knowledge-content to verify and publish finished Shifted Knowledge content."

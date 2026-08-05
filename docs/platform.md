@@ -83,8 +83,8 @@ out, or an edit would re-announce itself. `pubDate` is `published`, never
 The two implementations are deliberate near-duplicates. They share the platform's
 plumbing and no code; do not refactor them into one.
 
-Moment Hill's feed is currently **empty** — both its posts are drafts. That is
-expected, not a fault.
+Moment Hill's feed contains its published posts. Reference material in
+`explainers` and `frameworks` remains deliberately excluded.
 
 ## How a build happens
 
@@ -126,7 +126,7 @@ npx wrangler pages download config shifted-knowledge   # run in a scratch dir
 
 | Pages project | Git | Domains |
 |---|---|---|
-| `shifted-knowledge` | yes | `shifted-knowledge.pages.dev`, `www.shiftedknowledge.com` |
+| `shifted-knowledge` | yes | `shifted-knowledge.pages.dev`, `shiftedknowledge.com`, `www.shiftedknowledge.com` |
 | `moment-hill` | yes | `moment-hill.pages.dev`, `momenthill.com`, `www.momenthill.com` |
 | `moment-hill-preview` | no | `moment-hill-preview.pages.dev` |
 
@@ -166,12 +166,9 @@ commit. Nothing uses preview branches today.
 Both zones are on Cloudflare DNS. Both domains stay registered at Hover;
 only DNS moved. DNSSEC is off on both.
 
-`shiftedknowledge.com` apex is **not** attached to the Pages project as a custom
-domain — it resolves through a proxied record in the zone instead. It works, and
-it means the apex has no certificate or redirect settings of its own. Both sites
-serve apex and `www` with `200` rather than redirecting one to the other; the
-canonical tag points at the apex in both cases, so search engines consolidate
-correctly. Tidy if it ever matters, but nothing is broken.
+Both sites attach apex and `www` to their Pages projects. Both variants serve
+`200` rather than redirecting one to the other; canonical tags point at the
+apex, so search engines consolidate them.
 
 ## Secrets
 

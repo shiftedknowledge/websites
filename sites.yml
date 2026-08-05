@@ -14,9 +14,7 @@ sites:
     output_dir: .infra/sites/shifted-knowledge/dist
     schema: 3            # must equal sites/shifted-knowledge/CONTENT_SCHEMA
                          # 2 -> 3 on 2026-07-28: markdown-only, symlinks rejected.
-    domain: shiftedknowledge.com          # only www is ATTACHED to the project; the apex resolves
-                                          # through a proxied record in the zone, so it has no
-                                          # certificate or redirect settings of its own. Works; untidy.
+    domain: shiftedknowledge.com          # apex + www are attached to the Pages project
     mail: fastmail                        # see docs/dns.md
     infra_ref: main      # production. NOTE: the *preview* env is still pinned to SHA
                          # 74d8fb08d7c59b4297e50727d56429484c182ebd. Harmless while no

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cloudflare Operations"
+  short_description: "Operate Pages deployments domains and DNS"
+  default_prompt: "Use $cloudflare to inspect and operate current Cloudflare state."

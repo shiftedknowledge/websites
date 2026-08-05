@@ -1,7 +1,7 @@
 # Web Platform — Design Specification
 
 **From:** PM (Jochen)
-**To:** Engineer (Claude / coding agent)
+**To:** Engineer / coding agent
 **Status:** For review. Do not build until approved.
 **Date:** 2026-07-23 (revised after engineering review)
 

@@ -1,9 +1,11 @@
 # AGENTS.md — websites (infrastructure)
 
 Engineer-facing source of truth for the website platform. If you are a coding
-agent or a developer working in this repo, read this first. This file is the
-operating manual; [`docs/platform.md`](docs/platform.md) is the current state of
-everything, and [`docs/design-spec.md`](docs/design-spec.md) is the rationale.
+agent or a developer working in this repo, read this first. Then read
+[`HANDOVER.md`](HANDOVER.md) before doing any work. This file is the durable
+operating manual; the handover carries current direction and unresolved work,
+[`docs/platform.md`](docs/platform.md) describes the implemented platform, and
+[`docs/design-spec.md`](docs/design-spec.md) is the rationale.
 
 This repo is **public** and holds **no secrets**. Never commit credentials, tokens,
 or private content here.
@@ -12,6 +14,7 @@ or private content here.
 
 | Doc | |
 |---|---|
+| [`HANDOVER.md`](HANDOVER.md) | **current direction and open topics — mandatory on session start** |
 | [`docs/platform.md`](docs/platform.md) | the whole setup as it stands today — start here |
 | [`docs/dns.md`](docs/dns.md) | both zones, record by record. Mail is load-bearing. |
 | [`docs/newsletter.md`](docs/newsletter.md) | Buttondown, end to end |
@@ -21,11 +24,14 @@ or private content here.
 
 | Skill | |
 |---|---|
-| `site-platform` | the Astro engine: local dev, build, schema contract, new sites |
-| `cloudflare` | Pages, deployments, domains, DNS, wrangler |
-| `buttondown` | the Moment Hill newsletter, from `status: ready` to sent |
-| `moment-hill-content` | content for momenthill.com |
-| `shifted-knowledge-content` | content for shiftedknowledge.com |
+| `$site-platform` | the Astro engine: local dev, build, schema contract, new sites |
+| `$cloudflare` | Pages, deployments, domains, DNS, Wrangler |
+| `$moment-hill-content` | the ready-content handoff for momenthill.com |
+| `$shifted-knowledge-content` | the ready-content handoff for shiftedknowledge.com |
+
+Repository skills live under `.agents/skills/`, which Codex discovers from the
+repository root and every subdirectory. Read the selected skill completely
+before acting. Newsletter automation has no active skill; see `HANDOVER.md`.
 
 ---
 
@@ -45,7 +51,8 @@ together inside a throwaway build, every time a site is built.
 ```
 websites/
 ├── AGENTS.md              this file
-├── CLAUDE.md              a pointer to this file, for runtimes that load it
+├── HANDOVER.md            current direction and unresolved work; read second
+├── .agents/skills/        repository-scoped operational workflows
 ├── sites.yml             deployment manifest (desired Cloudflare state, in git)
 ├── docs/design-spec.md   the full design rationale
 ├── scripts/
@@ -133,30 +140,20 @@ restoring the previous SHA and redeploying. Do this per site, one at a time.
 2. Add it to the `case` allowlist in `scripts/build-site.sh`.
 3. Add its row to `sites.yml`.
 4. Create the private content repo `shiftedknowledge/<new-site>-content` with a
-   `content-contract.yml`, an `AGENTS.md`, a `CLAUDE.md` pointing at it, and a
-   `content/` tree. Copy the *Before you touch anything* block from an existing
-   content repo's `AGENTS.md` verbatim. That duplication is deliberate: safety
-   cannot depend on an agent having started in the right checkout.
+   `content-contract.yml`, an `AGENTS.md`, and a `content/` tree. Copy the
+   *Before you touch anything* block from an existing content repo's `AGENTS.md`
+   verbatim. That duplication is deliberate: safety cannot depend on an agent
+   having started in the right checkout.
 5. Create the Cloudflare Pages project against the content repo and follow
    `CLOUDFLARE_SETUP.md`.
 
 ## Newsletters
 
-Moment Hill has a Buttondown newsletter. The operating manual is
-[`docs/newsletter.md`](docs/newsletter.md); agent instructions are in
-`.claude/skills/buttondown/SKILL.md`.
-
-The shape mirrors the rest of the platform. `scripts/buttondown.mjs` is the
-site-agnostic CLI, `newsletter.username` in a site's `user.config.ts` is the only
-per-site config, and issues live in a `newsletters/` folder at the **root** of
-that site's content repo, beside `content/` and therefore invisible to
-`build-site.sh`. A site without a `newsletter` block renders an inert signup form
-and costs nothing.
-
-The newsletter is not the blog and does not read from it. Sending is always a
-human act: `push` writes drafts only, and `send` refuses without `--yes`.
-
-The API key lives in `~/.env`, never here.
+Newsletter automation is deferred. Jochen currently operates Buttondown through
+its own interface. `scripts/buttondown.mjs`, `docs/newsletter.md` and the Moment
+Hill newsletter design artefacts remain as unfinished infrastructure, not as an
+active agent workflow. Do not use or extend them unless Jochen explicitly
+reopens the newsletter work. See [`HANDOVER.md`](HANDOVER.md).
 
 ## Who owns what
 
@@ -168,8 +165,8 @@ components here. And every decision about what goes live and when.
 
 **Agents own** everything that is neither words nor look: Cloudflare
 configuration, triggering and triaging builds, drift between `sites.yml` and
-reality, domain and TLS health, dependency and Astro upgrades, the schema
-contract, and the newsletter pipeline downstream of a finished issue.
+reality, domain and TLS health, dependency and Astro upgrades, and the schema
+contract. Newsletter automation is currently deferred.
 
 **Layouts and components are the one shared surface, so the rule is about intent,
 not about files.** An agent may read them freely, diagnose them freely, and

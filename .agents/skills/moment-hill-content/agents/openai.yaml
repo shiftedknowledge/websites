@@ -1,0 +1,4 @@
+interface:
+  display_name: "Moment Hill Content"
+  short_description: "Publish finished Moment Hill content safely"
+  default_prompt: "Use $moment-hill-content to verify and publish finished Moment Hill content."
